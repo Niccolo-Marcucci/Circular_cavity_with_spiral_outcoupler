@@ -5,10 +5,12 @@ main_dir = pwd;
 
 sim_name = 'no_cavity_spiral_outcoupler';
 folder = 'SIM02_'+ sim_name;
-details = '_negative';
-filename = folder +'/'+ sim_name + details + '.fsp' ;
+details = '';
+filename = folder +'/'+ sim_name + details;
 load(filename);
 cd(main_dir);
+
+newdetails = '_charge';
 
 # source
 lambda=570e-9;
@@ -43,28 +45,30 @@ if (almostequal(base_idx,tail_idx)) {
     cavity_diameter = 400e-9;
 }
 
-N_dbr = 0;
-N_outcoupler = 5;
-N_charge = 2;                     # topological charge
+N_dbr = 20;
+N_outcoupler = 0;
+N_charge = 0;                     # topological charge
 period_dbr = 265e-9;
 period_outcoupler = lambda/n_eff;
-spacing_cavity_outcoupler = 4000e-9;
-spacing_after_outcoupler = 6000e-9;
+spacing_cavity_outcoupler = 1000e-9;
+spacing_after_outcoupler = 1500e-9;
+
 
 # domain
-L=cavity_diameter+2*(N_dbr*period_dbr+spacing_cavity_outcoupler+
+L_domain=cavity_diameter+2*(N_dbr*period_dbr+spacing_cavity_outcoupler+
                N_outcoupler*period_outcoupler+period_outcoupler+spacing_after_outcoupler);
 PML_extension_xy=5e-6;
 PML_extension_z=1e-6;
-d_air=800e-9;
+L_sample = L_domain + PML_extension_xy;
+d_air=600e-9;
 
 # set simulation parameter
 
 select("FDTD");
     set("x",0);
     set("y",0);
-    set("x span",L);
-    set("y span",L);
+    set("x span",L_domain);
+    set("y span",L_domain);
     set("z min",-thickness);
     set("z max",d_air);
     set("dimension","3D");
@@ -76,24 +80,25 @@ select("FDTD");
 select("mesh_top");
     set("x",0);
     set("y",0);
-    set("x span",L);
-    set("y span",L);
+    set("x span",L_domain);
+    set("y span",L_domain);
     set("z min",-sum(d(end-8:end)));
-    set("z max",d_air/8);
-    set("dx",50e-9);
-    set("dy",50e-9);
+    set("z max",d_air);
+    set("dx",30e-9);
+    set("dy",30e-9);
     set("dz",10e-9);
+    set('enabled',1)
   
 select("multilayer");
     set("data file",design_file);
     set("substrate thickness",dg+PML_extension_z);
-    set("domain size", L+PML_extension_xy); 
+    set("domain size", L_sample); 
     
 select('dummy layer');
     set("x",0);
     set("y",0);
-    set("x span",L);
-    set("y span",L);
+    set("x span",L_sample);
+    set("y span",L_sample);
     set('z min',-tail);
     set('z max',0);
     set('index',base_idx);
@@ -121,7 +126,7 @@ select("beam block");
     set("z min",d_air*3/4);
     set("z max",d_air*3/4+100e-9);
     set("material",'PEC (Perfect Electrical Conductor)');
-    set('enabled',1);
+    set('enabled',0);
     
     
 
@@ -144,20 +149,21 @@ select("TM source");
 select("top field power");
     set("x",0);
     set("y",0);
-    set("x span",L);
-    set("y span",L);
-    set("z",d_air*3/4+110e-9);
+    set("x span",L_domain);
+    set("y span",L_domain);
+    set("z",z_FFmonitor);
     set('override global monitor settings',1);
     set('use source limits',0);
     set('frequency points',1);
     set('wavelength center',lambda);
+    set('wavelength span',30e-9);
     
 
 select("near field power");
     set("x",0);
     set("y",0);
-    set("x span",L);
-    set("y span",L);
+    set("x span",L_domain);
+    set("y span",L_domain);
     set("z",10e-9);
     set('override global monitor settings',1);
     set('use source limits',0);
@@ -167,12 +173,14 @@ select("near field power");
 select("resonance finder outside");
     set("radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler/2);
     set("z",-tail/2);
+    set('enabled',1);
 
 select("resonance finder inside");
     set("x",0);
     set("y",0);
     set("radius",cavity_diameter/2);
     set("z",-tail/2);
+    set('enabled',1);
     
 #select("Qanalysis");
     #set("x",0);
@@ -198,16 +206,16 @@ select("monitor xy");
     set('monitor type', '2D Z-normal');
     set("x",0);
     set("y",0);
-    set("x span",L);
-    set("y span",L);
+    set("x span",L_domain);
+    set("y span",L_domain);
     set("z",-tail/2);
 
 #select("video_XY");
     #set('monitor type', '2D Z-normal');
     #set("x",0);
     #set("y",0);
-    #set("x span",L/2);
-    #set("y span",L/2);
+    #set("x span",L_domain/2);
+    #set("y span",L_domain/2);
     #set("z",source_zloc);
     #set('horizontal resolution',1080);
         
@@ -215,14 +223,14 @@ select("monitor xy");
     #set('monitor type', '2D X-normal');
     #set("x",0);
     #set("y",0);
-    #set("y span",L/2);
+    #set("y span",L_domain/2);
     #set("z max",d_air/2);
     #set("z min",-sum(d(end-14:end)));
     #set('horizontal resolution',1080);
 
 select("");
 
-
+filename = folder +'/'+ sim_name + newdetails + num2str(N_charge) ;
 save(filename);
 
 cd(main_dir);
