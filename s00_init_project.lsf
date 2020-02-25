@@ -10,9 +10,9 @@ deleteall;
 
 main_dir = pwd;
 
-sim_name = 'no_cavity_spiral_outcoupler';
-folder = 'SIM02_'+ sim_name;
-details = '_negative';
+sim_name = 'circular_cavity_without_outcoupler';
+folder = 'SIM01_'+ sim_name;
+details = '_base';
 filename = folder +'/'+ sim_name + details + '.fsp';
 
 lib_dir = "Lumerical-Objects/";                                    
@@ -72,10 +72,10 @@ set('name','resonance finder inside');
 set('monitors at boundaries',0);
 set('domain dimensions',2);
 
-#Qanalysis_sphere;
-#set('name','Qanalysis');
-#set('monitors at boundaries',0);
-#set('domain dimensions',2);
+Qanalysis_sphere;
+set('name','Qanalysis');
+set('monitors at boundaries',0);
+set('domain dimensions',2);
 
 
 # save the project in .fps and open the setup script

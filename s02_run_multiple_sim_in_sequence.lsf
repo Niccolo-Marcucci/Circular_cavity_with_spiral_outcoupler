@@ -9,56 +9,56 @@ sim_name03 = 'circular_cavity_spiral_outcoupler';
 
 sim_name = sim_name01;
 folder = 'SIM01_'+ sim_name;
-details = '_positive';
+details = '_design1_N20_positive';
 filename = folder +'/'+ sim_name + details + '.fsp';
 load(filename);
-#run;
+run;
 #save(filename);
 system("powershell -c [console]::beep(500,500)");
 cd(main_dir);
 
-details = '_negative';
+details = '_design2_N20_positive';
 filename = folder +'/'+ sim_name + details + '.fsp';
 load(filename);
-#run;
+run;
 #save(filename);
-system("powershell -c [console]::beep(500,500)");
+#system("powershell -c [console]::beep(500,500)");
 cd(main_dir);
 
-sim_name = sim_name02;
-folder = 'SIM02_'+ sim_name;
-details = '_positive';
-filename = folder +'/'+ sim_name + details + '.fsp';
-load(filename);
+#sim_name = sim_name02;
+#folder = 'SIM02_'+ sim_name;
+#details = '_positive';
+#filename = folder +'/'+ sim_name + details + '.fsp';
+#load(filename);
 #run;
 #save(filename);
-system("powershell -c [console]::beep(500,500)");
-cd(main_dir);
+#system("powershell -c [console]::beep(500,500)");
+#cd(main_dir);
 
-details = '_negative';
-filename = folder +'/'+ sim_name + details + '.fsp';
-load(filename);
+#details = '_negative';
+#filename = folder +'/'+ sim_name + details + '.fsp';
+#load(filename);
 #run;
 #save(filename);
-system("powershell -c [console]::beep(500,500)");
-cd(main_dir);
+#system("powershell -c [console]::beep(500,500)");
+#cd(main_dir);
 
-sim_name = sim_name03;
-folder = 'SIM03_'+ sim_name;
-details = '_positive';
-filename = folder +'/'+ sim_name + details + '.fsp';
-load(filename);
+#sim_name = sim_name03;
+#folder = 'SIM03_'+ sim_name;
+#details = '_positive';
+#filename = folder +'/'+ sim_name + details + '.fsp';
+#load(filename);
 #run;
 #save(filename);
-system("powershell -c [console]::beep(500,500)");
-cd(main_dir);
+#system("powershell -c [console]::beep(500,500)");
+#cd(main_dir);
 
-details = '_negative';
-filename = folder +'/'+ sim_name + details + '.fsp';
-load(filename);
+#details = '_negative';
+#filename = folder +'/'+ sim_name + details + '.fsp';
+#load(filename);
 #run;
 #save(filename);
-cd(main_dir);
+#cd(main_dir);
 
 
 system("powershell -c [console]::beep(800,10000)"); # valid for windows only ([Hz],[ms])
