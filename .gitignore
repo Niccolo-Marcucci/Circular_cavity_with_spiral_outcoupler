@@ -1,9 +1,11 @@
-# avoid lumerical (and some matlab) files
+# avoid lumerical and backup files
 *.fsp
 *.lms
 *.log
 *.bak
 *.asv
+\#*\#
+*
 
 # avoid data files
 *.mat

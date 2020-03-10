@@ -10,42 +10,44 @@ filename = folder +'/'+ sim_name + details;
 load(filename);
 cd(main_dir);
 
-newdetails = '_design1_N20_positive';
+newdetails = '_design3_N30_negative';
 
 # source
 lambda=570e-9;
 width=30e-9;
 
 # multilayer
-design_file = 'Lumerical-Objects/multilayer_design/best_design_TM.ldf';
+design_file = 'Lumerical-Objects/multilayer_design/best_design_TM3.ldf';
 loaddata(design_file);  # contains layer description (idx_layers, d_layers, BSW effective indeces)
 d = d_layers;
 dg=0.4e-6;
 d(1) = dg ;
 d(end) = 0 ;                       # air
 tail = d(end-1);                   # last layer
+second_last = d(end-2);            # second last
 tail_idx = idx_layers(end-1);      # last layer refractive index
 if (tail == 0) {                   # without pmma last layer is end-2
     tail = d(end-2); 
+    second_last = d(end-3);
     tail_idx = idx_layers(end-2);
 }
 thickness = sum(d);
 
 
 # cavity and outcoupler on last layer
-base_idx = tail_idx;                      # overrides last layer refractive index   
-groove_idx = 1;
+base_idx = 1;                      # overrides last layer refractive index   
+groove_idx = tail_idx;
 if (almostequal(base_idx,tail_idx)) {
-    source_zloc = 10e-9;
+    source_zloc = 1e-9;
     n_eff = n_eff2;
     cavity_diameter = 620e-9;
 } else {
-    source_zloc = 10e-9 - tail;
+    source_zloc = 1e-9 - tail;
     n_eff = n_eff3;
     cavity_diameter = 400e-9;
 }
 
-N_dbr = 20;
+N_dbr = 30;
 N_outcoupler = 0;
 N_charge = 0;                     # topological charge
 period_dbr = 265e-9;
@@ -60,9 +62,9 @@ L_domain=cavity_diameter+2*(N_dbr*period_dbr+spacing_cavity_outcoupler+
 PML_extension_xy=5e-6;
 PML_extension_z=1e-6;
 L_sample = L_domain + PML_extension_xy;
-d_air=500e-9;
+d_air = 500e-9;
 
-z_FFmonitor=d_air-50e-90;
+z_FFmonitor = d_air-50e-90;
 # set simulation parameter
 
 select("FDTD");
@@ -74,7 +76,7 @@ select("FDTD");
     set("z max",d_air);
     set("dimension","3D");
     set("background index",1);
-    set("simulation time",20000e-15);
+    set("simulation time",2000e-15);
     set("auto shutoff min",1e-5);
     set("mesh accuracy",4);
 
@@ -85,9 +87,9 @@ select("mesh_top");
     set("y span",L_domain);
     set("z min",-sum(d(end-7:end)));
     set("z max",d_air);
-    set("dx",30e-9);
-    set("dy",30e-9);
-    set("dz",10e-9);
+    set("dx",50e-9);
+    set("dy",50e-9);
+    set("dz",20e-9);
     set('enabled',1);
   
 select("multilayer");
@@ -108,7 +110,7 @@ select("circular cavity");
     set("N_periods", N_dbr);
     set("D",cavity_diameter);
     set("period",period_dbr);
-    set("thickness",tail);
+    set("thickness",tail+second_last);
     set("n_groove",groove_idx);
     set("z min", -tail);
 
@@ -184,17 +186,12 @@ select("resonance finder inside");
     set("z",-tail/2);
     set('enabled',1);
     
-#select("Qanalysis");
-    #set("x",0);
-    #set("y",0);
-    #set("radius",cavity_diameter/2);
-    #set("z",-tail/2);
-    
-#select("Qanalysis");
-    #set("x",0);
-    #set("y",0);
-    #set("z",-tail/2);
-    
+select("Qanalysis");
+    set("x",0);
+    set("y",0);
+    set("radius",cavity_diameter/2);
+    set("z",-tail/2);
+  
         
 select("monitor yz");
     set('monitor type', '2D X-normal');

@@ -9,7 +9,7 @@ sim_name03 = 'circular_cavity_spiral_outcoupler';
 
 sim_name = sim_name01;
 folder = 'SIM01_'+ sim_name;
-details = '_design1_N20_positive';
+details = '_design3_N30_positive';
 filename = folder +'/'+ sim_name + details + '.fsp';
 load(filename);
 run;
@@ -17,7 +17,7 @@ run;
 system("powershell -c [console]::beep(500,500)");
 cd(main_dir);
 
-details = '_design2_N20_positive';
+details = '_design3_N30_negative';
 filename = folder +'/'+ sim_name + details + '.fsp';
 load(filename);
 run;
@@ -61,4 +61,4 @@ cd(main_dir);
 #cd(main_dir);
 
 
-system("powershell -c [console]::beep(800,10000)"); # valid for windows only ([Hz],[ms])
+system("powershell -c [console]::beep(600,10000)"); # valid for windows only ([Hz],[ms])
