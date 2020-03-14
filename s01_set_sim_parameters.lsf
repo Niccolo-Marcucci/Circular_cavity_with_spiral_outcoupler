@@ -10,14 +10,14 @@ filename = folder +'/'+ sim_name + details;
 load(filename);
 cd(main_dir);
 
-newdetails = '_design3_N30_negative';
+newdetails = '_designDesc_N30_negative_less';
 
 # source
 lambda=570e-9;
 width=30e-9;
 
 # multilayer
-design_file = 'Lumerical-Objects/multilayer_design/best_design_TM3.ldf';
+design_file = 'Lumerical-Objects/multilayer_design/designs/best_design_TM_Descrovi.ldf';
 loaddata(design_file);  # contains layer description (idx_layers, d_layers, BSW effective indeces)
 d = d_layers;
 dg=0.4e-6;
@@ -33,16 +33,15 @@ if (tail == 0) {                   # without pmma last layer is end-2
 }
 thickness = sum(d);
 
-
 # cavity and outcoupler on last layer
 base_idx = 1;                      # overrides last layer refractive index   
 groove_idx = tail_idx;
 if (almostequal(base_idx,tail_idx)) {
-    source_zloc = 1e-9;
+    source_zloc = 10e-9;
     n_eff = n_eff2;
     cavity_diameter = 620e-9;
 } else {
-    source_zloc = 1e-9 - tail;
+    source_zloc = 10e-9 - tail;
     n_eff = n_eff3;
     cavity_diameter = 400e-9;
 }
@@ -76,7 +75,7 @@ select("FDTD");
     set("z max",d_air);
     set("dimension","3D");
     set("background index",1);
-    set("simulation time",2000e-15);
+    set("simulation time",10000e-15);
     set("auto shutoff min",1e-5);
     set("mesh accuracy",4);
 
@@ -231,5 +230,6 @@ select("");
 
 filename = folder +'/'+ sim_name + newdetails ;
 save(filename);
-
+run;
 cd(main_dir);
+system("powershell -c [console]::beep(500,500)");

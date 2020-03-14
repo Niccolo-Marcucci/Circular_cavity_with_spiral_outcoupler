@@ -12,12 +12,12 @@ folder = 'SIM01_'+ sim_name;
 details = '_design3_N30_positive';
 filename = folder +'/'+ sim_name + details + '.fsp';
 load(filename);
-run;
+#run;
 #save(filename);
 system("powershell -c [console]::beep(500,500)");
 cd(main_dir);
 
-details = '_design3_N30_negative';
+details = '_design4_N30_negative';
 filename = folder +'/'+ sim_name + details + '.fsp';
 load(filename);
 run;
