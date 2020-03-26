@@ -10,15 +10,16 @@ filename = folder +'/'+ sim_name + details;
 load(filename);
 cd(main_dir);
 
-newdetails = '_designDesc_N30_negative_less';
+newdetails = '_design_guided2';
+pattern_type = 'negative';
 
 # source
 lambda=570e-9;
 width=30e-9;
 
 # multilayer
-design_file = 'Lumerical-Objects/multilayer_design/designs/best_design_TM_Descrovi.ldf';
-loaddata(design_file);  # contains layer description (idx_layers, d_layers, BSW effective indeces)
+design_file = 'Lumerical-Objects/multilayer_design/designs/design_TM_guided2.mat';
+matlabload(design_file);  # contains layer description (idx_layers, d_layers, BSW effective indeces)
 d = d_layers;
 dg=0.4e-6;
 d(1) = dg ;
@@ -34,32 +35,38 @@ if (tail == 0) {                   # without pmma last layer is end-2
 thickness = sum(d);
 
 # cavity and outcoupler on last layer
-base_idx = 1;                      # overrides last layer refractive index   
-groove_idx = tail_idx;
-if (almostequal(base_idx,tail_idx)) {
+if (pattern_type == 'positive') {
+    base_idx = tail_idx;           # overrides last layer refractive index   
+    groove_idx = 1;
     source_zloc = 10e-9;
     n_eff = n_eff2;
-    cavity_diameter = 620e-9;
-} else {
+} else if (pattern_type == 'negative'){
+    base_idx = 1;                  # overrides last layer refractive index   
+    groove_idx = tail_idx;
     source_zloc = 10e-9 - tail;
     n_eff = n_eff3;
-    cavity_diameter = 400e-9;
+} else {
+    unkown_name;          # should send an error
 }
+    
 
-N_dbr = 30;
+cavity_diameter = round(lambda/n_eff*1e9)*1e-9;
+
+N_dbr = 31;
 N_outcoupler = 0;
 N_charge = 0;                     # topological charge
-period_dbr = 265e-9;
+period_dbr = round(lambda/(n_eff2+n_eff3)*1e9)*1e-9;
 period_outcoupler = lambda/n_eff;
 spacing_cavity_outcoupler = 1000e-9;
 spacing_after_outcoupler = 500e-9;
 
+newdetails = newdetails +'_N'+ num2str(N_dbr) +'_'+ pattern_type;
 
 # domain
-L_domain=cavity_diameter+2*(N_dbr*period_dbr+spacing_cavity_outcoupler+
-               N_outcoupler*period_outcoupler+period_outcoupler+spacing_after_outcoupler);
-PML_extension_xy=5e-6;
-PML_extension_z=1e-6;
+L_domain = cavity_diameter+2*(N_dbr*period_dbr+spacing_cavity_outcoupler+
+              N_outcoupler*period_outcoupler+period_outcoupler+spacing_after_outcoupler);
+PML_extension_xy = 1e-6;
+PML_extension_z = 1e-6;
 L_sample = L_domain + PML_extension_xy;
 d_air = 500e-9;
 
@@ -84,7 +91,7 @@ select("mesh_top");
     set("y",0);
     set("x span",L_domain);
     set("y span",L_domain);
-    set("z min",-sum(d(end-7:end)));
+    set("z min",-sum(d(end-9:end)));
     set("z max",d_air);
     set("dx",50e-9);
     set("dy",50e-9);
@@ -131,8 +138,6 @@ select("beam block");
     set("material",'PEC (Perfect Electrical Conductor)');
     set('enabled',0);
     
-    
-
 # sources and monitors
 
 select("TM source");
@@ -230,6 +235,6 @@ select("");
 
 filename = folder +'/'+ sim_name + newdetails ;
 save(filename);
-run;
+#run;
 cd(main_dir);
 system("powershell -c [console]::beep(500,500)");

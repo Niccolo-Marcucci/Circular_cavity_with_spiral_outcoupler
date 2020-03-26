@@ -9,56 +9,33 @@ sim_name03 = 'circular_cavity_spiral_outcoupler';
 
 sim_name = sim_name01;
 folder = 'SIM01_'+ sim_name;
-details = '_design3_N30_positive';
-filename = folder +'/'+ sim_name + details + '.fsp';
-load(filename);
-#run;
-#save(filename);
-system("powershell -c [console]::beep(500,500)");
-cd(main_dir);
 
-details = '_design4_N30_negative';
+details = '_design_guided2_N31_negative';
 filename = folder +'/'+ sim_name + details + '.fsp';
 load(filename);
 run;
-#save(filename);
-#system("powershell -c [console]::beep(500,500)");
 cd(main_dir);
+system("powershell -c [console]::beep(500,500)");
 
-#sim_name = sim_name02;
-#folder = 'SIM02_'+ sim_name;
-#details = '_positive';
-#filename = folder +'/'+ sim_name + details + '.fsp';
-#load(filename);
-#run;
-#save(filename);
-#system("powershell -c [console]::beep(500,500)");
-#cd(main_dir);
+details = '_design8_N45_negative';
+filename = folder +'/'+ sim_name + details + '.fsp';
+load(filename);
+run;
+cd(main_dir);
+system("powershell -c [console]::beep(500,500)");
 
-#details = '_negative';
-#filename = folder +'/'+ sim_name + details + '.fsp';
-#load(filename);
-#run;
-#save(filename);
-#system("powershell -c [console]::beep(500,500)");
-#cd(main_dir);
+details = '_design7_N42_negative';
+filename = folder +'/'+ sim_name + details + '.fsp';
+load(filename);
+run;
+cd(main_dir);
+system("powershell -c [console]::beep(500,500)");
 
-#sim_name = sim_name03;
-#folder = 'SIM03_'+ sim_name;
-#details = '_positive';
-#filename = folder +'/'+ sim_name + details + '.fsp';
-#load(filename);
-#run;
-#save(filename);
-#system("powershell -c [console]::beep(500,500)");
-#cd(main_dir);
-
-#details = '_negative';
-#filename = folder +'/'+ sim_name + details + '.fsp';
-#load(filename);
-#run;
-#save(filename);
-#cd(main_dir);
+details = '_design_guided_N48_negative';
+filename = folder +'/'+ sim_name + details + '.fsp';
+load(filename);
+run;
+cd(main_dir);
 
 
 system("powershell -c [console]::beep(600,10000)"); # valid for windows only ([Hz],[ms])
