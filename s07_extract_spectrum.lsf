@@ -1,0 +1,56 @@
+clear;
+main_dir = pwd; 
+
+sim_name01 = 'circular_cavity_without_outcoupler';
+sim_name02 = 'no_cavity_spiral_outcoupler';
+sim_name03 = 'circular_cavity_spiral_outcoupler';
+
+sim_name = sim_name01;
+folder = 'SIM01_'+ sim_name;
+sim_name01 = 'circular_cavity_without_outcoupler';
+
+for (i=1:12) {
+    if (i==1) {
+        details = '_design_gd3_onSiO2_N50_positive';
+    }else if (i==2){
+        details = '_design_gd3_N40_negative';        
+    }else if (i==3){
+        details = '_design_gd3_N40_positive';        
+    }else if (i==4){
+        details = '_design_gd3_onSiO2_N50_positive';        
+    }else if (i==5){
+        details = '_design_gd4_onSiO2_N40_positive';        
+    }else if (i==6){
+        details = '_design_Bad_N45_negative';         
+    }else if (i==7){
+        details = '_design_Bad9_N45_negative';     
+    }else if (i==8){
+        details = '_design8_N45_negative';       
+    }else if (i==9){
+        details = '_designDesc_N30_negative';    
+    }else if (i==10){
+        details = '_designDesc_N35_negative';    
+    }else if (i==11){
+        details = '_design3_N30_positive';    
+    }else if (i==12){
+        details = '_design3_N30_negative';              
+    }
+    filename = folder +'/'+ sim_name + details + '.fsp';
+    load(filename);
+    cd(main_dir);
+    
+    quality=getresult('resonance finder outside','Q');
+    spectrum_out=getresult('resonance finder outside','spectrum');
+    lambda_out=getresult('resonance finder outside','lambda');
+    spectrum_in=getresult('resonance finder inside','spectrum');
+    lambda_in=getresult('resonance finder inside','lambda');
+    select('circular cavity');
+        D=get('D');
+        N=get('N_periods');
+        period_DBR=get('period');
+    
+    closeall;
+    
+    matlabsave( folder +'/spectra/spectrum'+ details + '.mat',quality,lambda_out,spectrum_out,lambda_in,spectrum_in,D,N,period_DBR);
+}
+system("powershell -c [console]::beep(500,500)");

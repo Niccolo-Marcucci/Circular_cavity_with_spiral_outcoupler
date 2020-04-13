@@ -4,21 +4,22 @@
 main_dir = pwd; 
 
 sim_name = 'circular_cavity_without_outcoupler';
-folder = 'SIM01_'+ sim_name;
+sim_name = 'circular_cavity_spiral_outcoupler';
+folder = 'SIM03_'+ sim_name;
 details = '_base';
 filename = folder +'/'+ sim_name + details;
 load(filename);
 cd(main_dir);
 
-newdetails = '_design_guided2';
-pattern_type = 'negative';
+newdetails = '_design_gd3_onSiO2_2';
+pattern_type = 'positive';
 
 # source
 lambda=570e-9;
 width=30e-9;
 
 # multilayer
-design_file = 'Lumerical-Objects/multilayer_design/designs/design_TM_guided2.mat';
+design_file = 'Lumerical-Objects/multilayer_design/designs/design_TM_gd3_buriedDBR_onSiO2.mat';
 matlabload(design_file);  # contains layer description (idx_layers, d_layers, BSW effective indeces)
 d = d_layers;
 dg=0.4e-6;
@@ -27,26 +28,28 @@ d(end) = 0 ;                       # air
 tail = d(end-1);                   # last layer
 second_last = d(end-2);            # second last
 tail_idx = idx_layers(end-1);      # last layer refractive index
+second_last_idx = idx_layers(end-2);
 if (tail == 0) {                   # without pmma last layer is end-2
     tail = d(end-2); 
     second_last = d(end-3);
     tail_idx = idx_layers(end-2);
+    second_last_idx = idx_layers(end-3);
 }
 thickness = sum(d);
 
 # cavity and outcoupler on last layer
 if (pattern_type == 'positive') {
     base_idx = tail_idx;           # overrides last layer refractive index   
-    groove_idx = 1;
-    source_zloc = 10e-9;
-    n_eff = n_eff2;
-    cavity_diameter = 620e-9;
-} else if (pattern_type == 'negative'){
-    base_idx = 1;                  # overrides last layer refractive index   
-    groove_idx = tail_idx;
-    source_zloc = 10e-9 - tail;
+    groove_idx = second_last_idx;
+    source_zloc = 10e-9 - tail - second_last;
     n_eff = n_eff3;
     cavity_diameter = 400e-9;
+} else if (pattern_type == 'negative'){
+    base_idx = second_last_idx;    
+    groove_idx = tail_idx;
+    source_zloc = 10e-9 - tail;
+    n_eff = n_eff1;
+    cavity_diameter = 280e-9;
 } else {
     unkown_name;          # should send an error
 }
@@ -54,10 +57,10 @@ if (pattern_type == 'positive') {
 
 #cavity_diameter = round(lambda/n_eff*1e9)*1e-9;
 
-N_dbr = 31;
-N_outcoupler = 0;
-N_charge = 0;                     # topological charge
-period_dbr = round(lambda/(n_eff2+n_eff3)*1e9)*1e-9;
+N_dbr = 35;
+N_outcoupler = 6;
+N_charge = 1;                     # topological charge
+period_dbr = round(lambda/(n_eff1+n_eff3)*1e9)*1e-9;
 period_outcoupler = 2*period_dbr;
 spacing_cavity_outcoupler = 1000e-9;
 spacing_after_outcoupler = 500e-9;
@@ -66,7 +69,7 @@ newdetails = newdetails +'_N'+ num2str(N_dbr) +'_'+ pattern_type;
 
 # domain
 L_domain = cavity_diameter+2*(N_dbr*period_dbr+spacing_cavity_outcoupler+
-               N_outcoupler*period_outcoupler+period_outcoupler+spacing_after_outcoupler);
+              N_outcoupler*period_outcoupler+period_outcoupler+spacing_after_outcoupler);
 PML_extension_xy = 1e-6;
 PML_extension_z = 1e-6;
 L_sample = L_domain + PML_extension_xy;
@@ -86,20 +89,20 @@ select("FDTD");
     set("background index",1);
     set("simulation time",10000e-15);
     set("auto shutoff min",1e-5);
-    set("mesh accuracy",4);
-    set("x min bc",'Symmetric');
-    set("y min bc",'Symmetric');
+    set("mesh accuracy",2);
+    #set("x min bc",'Symmetric');
+    #set("y min bc",'Symmetric');
 
 select("mesh_top");
     set("x",0);
     set("y",0);
     set("x span",L_domain);
     set("y span",L_domain);
-    set("z min",-sum(d(end-9:end)));
-    set("z max",d_air);
-    set("dx",50e-9);
-    set("dy",50e-9);
-    set("dz",20e-9);
+    set("z min",-sum(d(end-5:end)));
+    set("z max",d_air/3);
+    set("dx",25e-9);
+    set("dy",25e-9);
+    set("dz",10e-9);
     set('enabled',1);
   
 select("multilayer");
@@ -112,28 +115,28 @@ select('dummy layer');
     set("y",0);
     set("x span",L_sample);
     set("y span",L_sample);
-    set('z min',-tail);
-    set('z max',0);
+    set('z min',-tail-second_last);
+    set('z max',-tail);
     set('index',base_idx);
     
 select("circular cavity");
     set("N_periods", N_dbr);
     set("D",cavity_diameter);
     set("period",period_dbr);
-    set("thickness",tail);
+    set("thickness",second_last);
     set("n_groove",groove_idx);
-    set("z min", -tail);
+    set("z min", -tail-second_last);
 
 select("outcoupler spiral groove");
     set("index groove",groove_idx);
     set("n rings",N_outcoupler);
     set("topological charge",N_charge);
-    set("thickness",tail);
+    set("thickness",second_last);
     set("resolution",50);
     set("start radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler);
     set("dbr period",period_outcoupler);
-    set("z min", -tail);
-    set('enabled',0);
+    set("z min", -tail-second_last);
+    set('enabled',1);
     
 select("beam block");
     set("radius",2*cavity_diameter+spacing_cavity_outcoupler/2);
@@ -167,7 +170,7 @@ select("top field power");
     set('override global monitor settings',1);
     set('use source limits',0);
     set('frequency points',1);
-    set('wavelength center',lambda);
+    set('wavelength center',573.933e-9);
     set('wavelength span',30e-9);
     
 
@@ -180,7 +183,7 @@ select("near field power");
     set('override global monitor settings',1);
     set('use source limits',0);
     set('frequency points',1);
-    set('wavelength center',lambda);
+    set('wavelength center',573.933e-9);
     
 select("resonance finder outside");
     set("radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler/2);
@@ -215,7 +218,7 @@ select("monitor xy");
     set("y",0);
     set("x span",L_domain);
     set("y span",L_domain);
-    set("z",-tail/2);
+    set("z",-tail-second_last/2);
 
 #select("video_XY");
     #set('monitor type', '2D Z-normal');
@@ -238,7 +241,7 @@ select("monitor xy");
 select("");
 
 filename = folder +'/'+ sim_name + newdetails ;
-save(filename);
+#save(filename);
 #run;
 cd(main_dir);
 system("powershell -c [console]::beep(500,500)");
