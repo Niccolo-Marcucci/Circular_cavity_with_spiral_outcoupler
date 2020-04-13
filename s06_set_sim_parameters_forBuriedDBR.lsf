@@ -42,13 +42,13 @@ if (pattern_type == 'positive') {
     base_idx = tail_idx;           # overrides last layer refractive index   
     groove_idx = second_last_idx;
     source_zloc = 10e-9 - tail - second_last;
-    n_eff = n_eff3;
+    n_eff = max([n_eff1,n_eff3]);
     cavity_diameter = 400e-9;
 } else if (pattern_type == 'negative'){
     base_idx = second_last_idx;    
     groove_idx = tail_idx;
     source_zloc = 10e-9 - tail;
-    n_eff = n_eff1;
+    n_eff = min([n_eff1,n_eff3]);
     cavity_diameter = 280e-9;
 } else {
     unkown_name;          # should send an error
