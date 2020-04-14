@@ -9,25 +9,24 @@ filename = folder +'/'+ sim_name + details + '.fsp' ;
 load(filename);
 cd(main_dir);
 
-Ef=getresult('top field power','farfield');
+Ef = farfieldvector3d("top field power",1,5000,5000);
 #image(Ef.ux,Ef.uy,pinch(Ef.Ep(:,:,1,1)));
 
-ux = pinch(Ef.ux);
-uy = pinch(Ef.uy);
+ux = farfieldux("top field power",1,5000,5000);
+uy = farfielduy("top field power",1,5000,5000);
 
 useful_ux = find(abs(ux)<0.2);
 useful_uy = find(abs(uy)<0.2);
 ux = ux(useful_ux);
 uy = uy(useful_uy);
 
-E_theta = pinch(Ef.Ep(:,:,1,1));
-E_phi = pinch(Ef.Es(:,:,1,1));
+Ex = pinch(Ef(useful_ux,useful_uy,1));
+Ey = pinch(Ef(useful_ux,useful_uy,2));
+Ez = pinch(Ef(useful_ux,useful_uy,3));
+matlabsave('far_field_data/'+'far_field_data_design_gd3_onSiO2_2_N35_positivevect',ux,uy,Ex,Ey,Ez);
 
-E_phi = E_phi(useful_ux,useful_uy);
-E_theta = E_theta(useful_ux,useful_uy);
 
-
-matlabsave(folder+'/far_field_data/'+'far_field_data_negative_charge'+num2str(charge)+'_N'+num2str(n_g),ux,uy,E_theta,E_phi);
+#matlabsave(folder+'/far_field_data/'+'far_field_data_negative_charge'+num2str(charge)+'_N'+num2str(n_g),ux,uy,E_theta,E_phi);
 system("powershell -c [console]::beep(500,500)");
 
 }
