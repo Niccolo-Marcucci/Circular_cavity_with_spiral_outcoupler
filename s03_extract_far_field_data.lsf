@@ -1,15 +1,19 @@
 clear;
 main_dir = pwd; 
-n_g = 10;
-for (charge = 2 ) {
+charge = 2;
+for (n_g = [5] ) {
 sim_name = 'no_cavity_spiral_outcoupler';
-folder = 'SIM02_'+ sim_name + '/' + 'sweep_charge_and_ngrating';
-details = '_negative_charge'+num2str(charge)+'_N'+num2str(n_g);
+folder = 'SIM02_'+ sim_name ;#+ '/' + 'sweep_charge'_and_ngrating';
+#details = '_negative_charge'+num2str(charge)+'_finerMeshed';#+'_N'+num2str(n_g)
+details = '_TM_finerMesh'+'_charge'+num2str(charge)+'_negative';#
+#folder = 'SIM02_'+ sim_name ;
+#details = '_design_gd3_onSiO2_positive';
 filename = folder +'/'+ sim_name + details + '.fsp' ;
 load(filename);
 cd(main_dir);
 
 Ef = farfieldvector3d("top field power",1,5000,5000);
+#Ef = farfieldpolar3d("top field power",1,5000,5000);
 #image(Ef.ux,Ef.uy,pinch(Ef.Ep(:,:,1,1)));
 
 ux = farfieldux("top field power",1,5000,5000);
@@ -23,10 +27,15 @@ uy = uy(useful_uy);
 Ex = pinch(Ef(useful_ux,useful_uy,1));
 Ey = pinch(Ef(useful_ux,useful_uy,2));
 Ez = pinch(Ef(useful_ux,useful_uy,3));
-matlabsave('far_field_data/'+'far_field_data_design_gd3_onSiO2_2_N35_positivevect',ux,uy,Ex,Ey,Ez);
+matlabsave(folder+'/far_field_data/'+'far_field_data' + details,ux,uy,Ex,Ey,Ez);
 
+#E = rectilineardataset("E",ux,uy,1);
+#E.addattribute("E",Ex,Ey,Ez);
+#visualize(E,E);
 
-#matlabsave(folder+'/far_field_data/'+'far_field_data_negative_charge'+num2str(charge)+'_N'+num2str(n_g),ux,uy,E_theta,E_phi);
+#E_theta=Ey;
+#E_phi=Ez;
+#matlabsave(folder+'/far_field_data/'+'far_field_data'+ details+'PHI',ux,uy,E_theta,E_phi);
 system("powershell -c [console]::beep(500,500)");
 
 }
