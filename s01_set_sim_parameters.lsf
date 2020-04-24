@@ -3,14 +3,15 @@
 
 main_dir = pwd; 
 
-sim_name = 'circular_cavity_without_outcoupler';
-folder = 'SIM01_'+ sim_name;
+sim_name = 'complex_outcouplers';
+folder = 'SIM04_'+ sim_name;
 details = '_base';
 filename = folder +'/'+ sim_name + details;
 load(filename);
 cd(main_dir);
 
-newdetails = '_design_guided2';
+design_name = '_TM';
+outcoupler_type = '_metasurface_filled';
 pattern_type = 'negative';
 
 # source
@@ -18,7 +19,7 @@ lambda=570e-9;
 width=30e-9;
 
 # multilayer
-design_file = 'Lumerical-Objects/multilayer_design/designs/design_TM_guided2.mat';
+design_file = 'Lumerical-Objects/multilayer_design/designs/design'+design_name+'.mat';
 matlabload(design_file);  # contains layer description (idx_layers, d_layers, BSW effective indeces)
 d = d_layers;
 dg=0.4e-6;
@@ -45,7 +46,7 @@ if (pattern_type == 'positive') {
     base_idx = 1;                  # overrides last layer refractive index   
     groove_idx = tail_idx;
     source_zloc = 10e-9 - tail;
-    n_eff = min([n_eff1,n_eff3]);;
+    n_eff = min([n_eff1,n_eff3]);
     cavity_diameter = 400e-9;
 } else {
     unkown_name;          # should send an error
@@ -54,15 +55,15 @@ if (pattern_type == 'positive') {
 
 #cavity_diameter = round(lambda/n_eff*1e9)*1e-9;
 
-N_dbr = 31;
-N_outcoupler = 0;
+N_dbr = 0;
+N_outcoupler = 5;
 N_charge = 0;                     # topological charge
 period_dbr = round(lambda/(n_eff1+n_eff3)*1e9)*1e-9;
 period_outcoupler = 2*period_dbr;
-spacing_cavity_outcoupler = 1000e-9;
+spacing_cavity_outcoupler = 3000e-9;
 spacing_after_outcoupler = 500e-9;
-
-newdetails = newdetails +'_N'+ num2str(N_dbr) +'_'+ pattern_type;
+outcoupler_tilt = 45/2;
+newdetails = design_name + outcoupler_type +'_charge'+ num2str(N_dbr)+'_tilt'+num2str(round(outcoupler_tilt)) +'_'+ pattern_type;
 
 # domain
 L_domain = cavity_diameter+2*(N_dbr*period_dbr+spacing_cavity_outcoupler+
@@ -86,20 +87,20 @@ select("FDTD");
     set("background index",1);
     set("simulation time",10000e-15);
     set("auto shutoff min",1e-5);
-    set("mesh accuracy",4);
-    set("x min bc",'Symmetric');
-    set("y min bc",'Symmetric');
+    set("mesh accuracy",2);
+    #set("x min bc",'Symmetric');
+    #set("y min bc",'Symmetric');
 
 select("mesh_top");
     set("x",0);
     set("y",0);
     set("x span",L_domain);
     set("y span",L_domain);
-    set("z min",-sum(d(end-9:end)));
+    set("z min",-sum(d(end-4:end)));
     set("z max",d_air);
-    set("dx",50e-9);
-    set("dy",50e-9);
-    set("dz",20e-9);
+    set("dx",30e-9);
+    set("dy",30e-9);
+    set("dz",10e-9);
     set('enabled',1);
   
 select("multilayer");
@@ -123,6 +124,7 @@ select("circular cavity");
     set("thickness",tail);
     set("n_groove",groove_idx);
     set("z min", -tail);
+    set('enabled',0);
 
 select("outcoupler spiral groove");
     set("index groove",groove_idx);
@@ -135,12 +137,35 @@ select("outcoupler spiral groove");
     set("z min", -tail);
     set('enabled',0);
     
+select("exponential outcoupler");
+    set("index groove",groove_idx);
+    set("n rings",N_outcoupler);
+    set("topological charge",N_charge);
+    set("thickness",tail);
+    set("start radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler);
+    set("period",period_outcoupler);
+    set("z min", -tail);
+    set("rectangle tilt",outcoupler_tilt);
+    set('enabled',0);
+    
+select("metasurface outcoupler");
+    set("index groove",groove_idx);
+    set("n rings",N_outcoupler);
+    set("topological charge",N_charge);
+    set("thickness",tail);
+    set("start radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler);
+    set("period",period_outcoupler);
+    set("z min", -tail);
+    set("rectangular element tilt",-outcoupler_tilt);
+    set("pattern type",'filled');
+    set('enabled',1);
+    
 select("beam block");
     set("radius",2*cavity_diameter+spacing_cavity_outcoupler/2);
     set("z min",z_FFmonitor-100e-9);
     set("z max",z_FFmonitor-10e-9);
     set("material",'PEC (Perfect Electrical Conductor)');
-    set('enabled',0);
+    set('enabled',1);
     
 # sources and monitors
 
@@ -239,6 +264,6 @@ select("");
 
 filename = folder +'/'+ sim_name + newdetails ;
 save(filename);
-#run;
+run;
 cd(main_dir);
-system("powershell -c [console]::beep(500,500)");
+#system("powershell -c [console]::beep(500,500)");
