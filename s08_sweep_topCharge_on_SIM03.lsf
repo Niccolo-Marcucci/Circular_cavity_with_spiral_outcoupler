@@ -1,0 +1,41 @@
+clear;
+closeall;
+
+main_dir = pwd;
+
+sim_name01 = 'circular_cavity_without_outcoupler';
+sim_name02 = 'no_cavity_spiral_outcoupler';
+sim_name03 = 'circular_cavity_spiral_outcoupler';
+
+sim_name = sim_name03;
+folder = 'SIM03_' + sim_name;
+sweep_folder = 'sweep_charge';
+n_grating = 5;
+for (charge = 2) {
+    details = '_design_gd3_onSiO2_positive';
+    filename = folder + '/' + sim_name + details + '.fsp';
+    load(filename);
+    select("outcoupler spiral groove");
+        set("topological charge",charge);
+        set("n rings",n_grating);
+    filename = sweep_folder  + '/' + sim_name + details + '_charge' + num2str(charge) + '.fsp'; #format available in next lumerical release,'%+02i'
+    save(filename);
+    run;
+    #system("powershell -c [console]::beep(500,500)");
+    cd(main_dir);
+    
+    #details = '_negative';
+    #filename = folder + '/' + sim_name + details + '.fsp';
+    #load(filename);
+    #select("outcoupler spiral groove");
+        #set("topological charge",charge);
+        #set("n rings",n_grating);
+    #filename = sweep_folder  + '/' + sim_name + details + '_charge' + num2str(charge) + '.fsp';
+    #save(filename);
+    #run;
+    #system("powershell -c [console]::beep(500,500)");
+    #cd(main_dir);
+
+}
+
+system("powershell -c [console]::beep(800,10000)"); # valid for windows only ([Hz],[ms])

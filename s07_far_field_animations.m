@@ -1,19 +1,20 @@
 clear,
-% close all
-folder="SIM02_no_cavity_spiral_outcoupler/far_field_data/";
+close all
+% folder="SIM02_no_cavity_spiral_outcoupler/far_field_data/";
 folder="SIM04_complex_outcouplers/far_field_data/";
 
 top_charge=0;
 n_g=5;
-add_detail =["_metasurface_design_TM_filled"];%_TM_finerMesh_moreTurns_Hdipole,"_TM_larger_domain","_TM_larger_domain_oring"]
-    
+add_detail =["_design_gd3_onSiO2_positive_filled_Ishape_Dphi-60_N12_sigma1_charge1"];
+
 animated_quantity = 'E'; % options are E, RHC, LHC
 for top_charge=0
     
     details = strcat(add_detail,'_charge',num2str(top_charge),'_negative');
-    details = strcat(add_detail,'_charge',num2str(top_charge),'_tilt22','_negative');
+%     details = strcat(add_detail,'_charge',num2str(top_charge),'_tilt45','_negative');
+%     details = strcat(add_detail,'_tilt45','_negative');
 
-    load(strcat(folder,"far_field_data",details));
+    load(strcat(folder,"far_field_data",add_detail));
     
     % convert to matlab reference frame (from Lumerical 2019)
     Ex=transpose(Ex);
@@ -88,7 +89,7 @@ for top_charge=0
     end
     E = sqrt(real(Ex).^2+real(Ey).^2)+1i*sqrt(imag(Ex).^2+imag(Ey).^2);
     massimo = max(max(max(real(E).^2)),max(max(imag(E).^2)));    
-    for kk = 1:N*10
+    for kk = 1:N
         E = sqrt(real(Ex).^2+real(Ey).^2)+1i*sqrt(imag(Ex).^2+imag(Ey).^2);
         figure(fig)
         hold off
@@ -102,21 +103,21 @@ for top_charge=0
         nicePlot
         xlim([-0.2 0.2])
         ylim([-0.2 0.2])
-        pause(0.05)
-%         % Capture the plot as an image 
-%         frame = getframe(fig); 
-%         im = frame2im(frame); 
-%         [imind,cm] = rgb2ind(im,256); 
-%         % Write to the GIF File 
-%         gifname=strcat(folder,"far_field_coloredAnimation",details,"_",...
-%                                 animated_quantity,'.gif');
-%         if kk == 1 
-%           imwrite(imind,cm,gifname,'gif', 'Loopcount',inf,'DelayTime',0.05); 
-%         else 
-%           imwrite(imind,cm,gifname,'gif','WriteMode','append','DelayTime',0.05); 
-%         end 
+%         pause(0.05)
+        % Capture the plot as an image 
+        frame = getframe(fig); 
+        im = frame2im(frame); 
+        [imind,cm] = rgb2ind(im,256); 
+        % Write to the GIF File 
+        gifname=strcat(folder,"far_field_coloredAnimation",details,"_",...
+                                animated_quantity,'.gif');
+        if kk == 1 
+          imwrite(imind,cm,gifname,'gif', 'Loopcount',inf,'DelayTime',0.05); 
+        else 
+          imwrite(imind,cm,gifname,'gif','WriteMode','append','DelayTime',0.05); 
+        end 
     end
-%    saveas(figure(3),strcat(folder,"far_field_quiverPLOT",details),'png')
+%    saveas(figure(1),strcat(folder,"far_field_quiverPLOT",details),'png')
 end
 
 
@@ -130,7 +131,7 @@ function plot_surf(ux,uy,quantity,map,picture_title,symmetry,massimo)
     if nargin > 3
         colormap(ax,map)
     if nargin > 4
-        title(picture_title)
+%         title(picture_title)
     if nargin > 5 
         if symmetry == "symmetric"
             c = max(abs([min(min(quantity)),max(max(quantity))]));
@@ -149,7 +150,7 @@ function plot_surf(ux,uy,quantity,map,picture_title,symmetry,massimo)
             error('Wrong "symmetry" signment')
         end
     end;end;end;end
-    colorbar
+%     colorbar
     xlabel("ux");
     ylabel('uy');
     axis('square')

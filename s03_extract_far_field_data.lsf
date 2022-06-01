@@ -1,14 +1,32 @@
 clear;
 main_dir = pwd; 
-charge = 2;
-for (n_g = [5] ) {
-sim_name = 'no_cavity_spiral_outcoupler';
-folder = 'SIM02_'+ sim_name ;#+ '/' + 'sweep_charge'_and_ngrating';
-#details = '_negative_charge'+num2str(charge)+'_finerMeshed';#+'_N'+num2str(n_g)
-details = '_TM_finerMesh'+'_charge'+num2str(charge)+'_negative';#
+charge = 0;
+
+sim_name = 'circular_cavity_spiral_outcoupler';
+#sim_name = 'complex_outcouplers';
+
+folder = 'SIM03_'+ sim_name ;#+ '/' + 'sweep_charge'_and_ngrating';
+#details = '_negative_charge'+num2str(charge)+'_finerMeshed';#+'_N'+num2str(n_g)+'_tilt45'
+details = '_TM_radial'+'_charge'+num2str(charge)+'_negative';#
+details = '_TM_exponential_DBR_n_radial_outcoupler_tilt45_negative';#
+details = '_TM_segmented_tilted10_charge0_negative';#
+details = '_design_gd3_onSiO2_positive_filled_Dphi60_N12_sigma-1_m1_correctKmeas';
+details = '_design_gd3_onSiO2_positive_filled_Ishape_Dphi-60_N12_sigma1_charge1_Ndbr35';
+#details = '_slot_waveguide_negative_filled_Dphi60_N12_sigma-1';
+
+
+#complex_outcouplers_TM_exponential_DBR_n_radial_outcoupler_tilt45_negative
 #folder = 'SIM02_'+ sim_name ;
 #details = '_design_gd3_onSiO2_positive';
-filename = folder +'/'+ sim_name + details + '.fsp' ;
+
+#for (radial_FF  = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7] ){
+#for (lateral_FF = [0.8, 1]) {
+#start_radius_v = linspace(1,4,20)*1e-6;
+#for (i = 1:20 ) {
+    #start_radius = start_radius_v(i);
+    #filename = folder +'/'+ 'sweep_scatter_size/scatterTests_design_gd3_onSiO2_positive_filled_Dphi60_N12_sigma-1_m1_radialFF' + num2str(radial_FF) + '_lateralFF' +num2str(lateral_FF)+ '.fsp'; #sim_name + details + '.fsp' ;
+    #filename = folder +'/'+ 'sweep_start_radius/scatterTests_design_gd3_onSiO2_positive_filled_Dphi60_N12_sigma-1_m1_diameter' + num2str(round(2*start_radius*1e9));
+filename = folder +'/'+ sim_name + details;
 load(filename);
 cd(main_dir);
 
@@ -19,8 +37,8 @@ Ef = farfieldvector3d("top field power",1,5000,5000);
 ux = farfieldux("top field power",1,5000,5000);
 uy = farfielduy("top field power",1,5000,5000);
 
-useful_ux = find(abs(ux)<0.2);
-useful_uy = find(abs(uy)<0.2);
+useful_ux = find(abs(ux)<=1);
+useful_uy = find(abs(uy)<=1);
 ux = ux(useful_ux);
 uy = uy(useful_uy);
 
@@ -28,6 +46,8 @@ Ex = pinch(Ef(useful_ux,useful_uy,1));
 Ey = pinch(Ef(useful_ux,useful_uy,2));
 Ez = pinch(Ef(useful_ux,useful_uy,3));
 matlabsave(folder+'/far_field_data/'+'far_field_data' + details,ux,uy,Ex,Ey,Ez);
+#matlabsave(folder+'/sweep_scatter_size/far_field_data/'+'far_field_data' + '_design_gd3_onSiO2_positive_filled_Dphi60_N12_sigma-1_m1_radialFF' + num2str(radial_FF) + '_lateralFF' +num2str(lateral_FF)+ '.mat',ux,uy,Ex,Ey,Ez);
+#matlabsave(folder+'/sweep_start_radius/far_field_data/'+'far_field_data' + '_design_gd3_onSiO2_positive_filled_Dphi60_N12_sigma-1_m1_diameter' + num2str(round(2*start_radius*1e9)) + '.mat',ux,uy,Ex,Ey,Ez);
 
 #E = rectilineardataset("E",ux,uy,1);
 #E.addattribute("E",Ex,Ey,Ez);
@@ -37,5 +57,5 @@ matlabsave(folder+'/far_field_data/'+'far_field_data' + details,ux,uy,Ex,Ey,Ez);
 #E_phi=Ez;
 #matlabsave(folder+'/far_field_data/'+'far_field_data'+ details+'PHI',ux,uy,E_theta,E_phi);
 system("powershell -c [console]::beep(500,500)");
-
-}
+#}}
+#}

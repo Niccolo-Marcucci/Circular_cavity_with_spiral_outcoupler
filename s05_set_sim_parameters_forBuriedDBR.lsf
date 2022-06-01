@@ -1,19 +1,21 @@
-# This file contains all the parameter that are useful to be varied during the simulation.
+ #This file contains all the parameter that are useful to be varied during the simulation.
 # all other quantities that it is known that are
 
 main_dir = pwd; 
 
 sim_name = 'circular_cavity_without_outcoupler';
+sim_name = 'no_cavity_spiral_outcoupler';
 sim_name = 'circular_cavity_spiral_outcoupler';
+#sim_name = 'complex_outcouplers';
 folder = 'SIM03_'+ sim_name;
-details = '_base';
+details = '_base_complex';
 filename = folder +'/'+ sim_name + details;
 load(filename);
 cd(main_dir);
 
-newdetails = '_design_gd3_onSiO2_2';
+newdetails = '_design_gd3_onSiO2';
 pattern_type = 'positive';
-
+grating_type = 'filled';
 # source
 lambda=570e-9;
 width=30e-9;
@@ -23,8 +25,8 @@ design_file = 'Lumerical-Objects/multilayer_design/designs/design_TM_gd3_buriedD
 matlabload(design_file);  # contains layer description (idx_layers, d_layers, BSW effective indeces)
 d = d_layers;
 dg=0.4e-6;
-d(1) = dg ;
-d(end) = 0 ;                       # air
+d(1) = dg;
+d(end) = 0;                        # air
 tail = d(end-1);                   # last layer
 second_last = d(end-2);            # second last
 tail_idx = idx_layers(end-1);      # last layer refractive index
@@ -43,29 +45,50 @@ if (pattern_type == 'positive') {
     groove_idx = second_last_idx;
     source_zloc = 10e-9 - tail - second_last;
     n_eff = max([n_eff1,n_eff3]);
+    n_eff2 = min([n_eff1,n_eff3]);
     cavity_diameter = 400e-9;
 } else if (pattern_type == 'negative'){
     base_idx = second_last_idx;    
     groove_idx = tail_idx;
     source_zloc = 10e-9 - tail;
     n_eff = min([n_eff1,n_eff3]);
+    n_eff2 = max([n_eff1,n_eff3]);
     cavity_diameter = 280e-9;
 } else {
     unkown_name;          # should send an error
 }
     
 
-#cavity_diameter = round(lambda/n_eff*1e9)*1e-9;
-
+#cavity_diameter = 0;# round(lambda/n_eff*1e9)*1e-9;
+D_phi = -pi/3;
+sigma = 1;
+K0 = 2*pi/lambda;
+K_bsw = K0*n_eff2*0.3 + K0*n_eff*(1 - 0.3);
+m = 1   ; # ordinary grating order
+s = (m*2*pi + sigma * 2*D_phi)/K_bsw;
+print(s);
 N_dbr = 35;
-N_outcoupler = 6;
-N_charge = 1;                     # topological charge
-period_dbr = round(lambda/(n_eff1+n_eff3)*1e9)*1e-9;
-period_outcoupler = 2*period_dbr;
-spacing_cavity_outcoupler = 1000e-9;
+N_outcoupler = 12;
+N_charge =1;          # topological charge
+period_dbr = 165e-9;#round(lambda/(n_eff1+n_eff3)*1e9)*1e-9;
+period_outcoupler = s; #2*period_dbr;
+spacing_cavity_outcoupler = period_dbr/2;
 spacing_after_outcoupler = 500e-9;
+scatter_width = 0.3*s;
+scatter_shape = 'I';
 
-newdetails = newdetails +'_N'+ num2str(N_dbr) +'_'+ pattern_type;
+FF = 0.9;
+#cavity_diameter = 440*1e-9;#round(lambda/n_eff*1e9)*1e-9;
+##cavity_diameter =0;
+#N_dbr = 0;
+#N_outcoupler = 5;
+#N_charge = 0;                     # topological charge
+#period_dbr = 180*1e-9;#round(lambda/(n_eff1+n_eff3)*1e9)*1e-9;
+#period_outcoupler = 330*1e-9; #2*period_dbr;
+#spacing_cavity_outcoupler = 500e-9;
+#spacing_after_outcoupler = 500e-9;
+
+newdetails = newdetails +'_'+ pattern_type + '_' + grating_type + '_'+ scatter_shape +'shape'+ '_Dphi' + num2str(round(D_phi/pi*180)) + '_N' +  num2str(N_outcoupler) + '_sigma' + num2str(sigma) + '_charge'+ num2str(N_charge)+ '_Ndbr'+ num2str(N_dbr); 
 
 # domain
 L_domain = cavity_diameter+2*(N_dbr*period_dbr+spacing_cavity_outcoupler+
@@ -75,7 +98,7 @@ PML_extension_z = 1e-6;
 L_sample = L_domain + PML_extension_xy;
 d_air = 500e-9;
 
-z_FFmonitor = d_air-50e-90;
+z_FFmonitor = d_air-50e-9;
 # set simulation parameter
 
 select("FDTD");
@@ -86,24 +109,24 @@ select("FDTD");
     set("z min",-thickness);
     set("z max",d_air);
     set("dimension","3D");
-    set("background index",1);
-    set("simulation time",10000e-15);
+    set("index",1);
+    set("simulation time",3000e-15);
     set("auto shutoff min",1e-5);
-    set("mesh accuracy",2);
+    set("mesh accuracy",3);
     #set("x min bc",'Symmetric');
     #set("y min bc",'Symmetric');
 
 select("mesh_top");
     set("x",0);
     set("y",0);
-    set("x span",L_domain);
-    set("y span",L_domain);
-    set("z min",-sum(d(end-5:end)));
-    set("z max",d_air/3);
-    set("dx",25e-9);
-    set("dy",25e-9);
+    set("x span",L_domain-1.5*spacing_after_outcoupler);
+    set("y span",L_domain-1.5*spacing_after_outcoupler);
+    set("z min",-sum(d(end-2:end)-60e-9));
+    set("z max",d_air/5);
+    set("dx",15e-9);
+    set("dy",15e-9);
     set("dz",10e-9);
-    set('enabled',1);
+    set('enabled',0);
   
 select("multilayer");
     set("data file",design_file);
@@ -126,6 +149,7 @@ select("circular cavity");
     set("thickness",second_last);
     set("n_groove",groove_idx);
     set("z min", -tail-second_last);
+    set('enabled',1);
 
 select("outcoupler spiral groove");
     set("index groove",groove_idx);
@@ -136,12 +160,56 @@ select("outcoupler spiral groove");
     set("start radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler);
     set("dbr period",period_outcoupler);
     set("z min", -tail-second_last);
-    set('enabled',1);
+    set('enabled',0);
+
     
+select("exponential outcoupler");
+    set("index groove",groove_idx);
+    set("n rings",N_outcoupler);
+    set("topological charge",N_charge);
+    set("thickness",second_last);
+    set("start radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler);
+    set("period",period_outcoupler);
+    set("z min", -tail-second_last);
+    set("groove tilt",45);
+    set('enabled',0);
+    
+select("radial outcoupler");
+    set("index groove",groove_idx);
+    set("n rings",N_outcoupler);
+    set("topological charge",N_charge);
+    set("thickness",second_last);
+    set("start radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler);
+    set("period",period_outcoupler);
+    set("z min", -tail-second_last);
+    set('enabled',0);
+   
+select("metasurface outcoupler");
+    set('enabled',0);
+    
+select("pol splitter");
+    set("index groove",groove_idx);
+    #set("material groove",'Au (Gold) - CRC');
+    set("N rings",N_outcoupler);
+    set("topological charge",N_charge);
+    set("thickness",second_last);
+    set('scatter tilt',0);	     
+    set('scatter shape',scatter_shape);	     
+    set('scatter width',scatter_width);
+    set("start radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler);
+    set("period",period_outcoupler);
+    set("wave period", lambda/n_eff);
+    set("z min", -tail-second_last);
+    set("pattern type",grating_type);
+    set("topology",'spiral');
+    set('fill factor',FF);
+    set('D_phi',D_phi);
+    set('enabled',1);
+    	    
 select("beam block");
-    set("radius",2*cavity_diameter+spacing_cavity_outcoupler/2);
-    set("z min",z_FFmonitor-100e-9);
-    set("z max",z_FFmonitor-10e-9);
+    set("radius", cavity_diameter/2+N_dbr*period_dbr/2+spacing_cavity_outcoupler/2);
+    set("z min" , z_FFmonitor-100e-9);
+    set("z max" , z_FFmonitor-10e-9);
     set("material",'PEC (Perfect Electrical Conductor)');
     set('enabled',0);
     
@@ -170,9 +238,8 @@ select("top field power");
     set('override global monitor settings',1);
     set('use source limits',0);
     set('frequency points',1);
-    set('wavelength center',573.933e-9);
-    set('wavelength span',30e-9);
-    
+    set('wavelength center',572.23e-9);
+    set('wavelength span',0e-9);
 
 select("near field power");
     set("x",0);
@@ -183,11 +250,12 @@ select("near field power");
     set('override global monitor settings',1);
     set('use source limits',0);
     set('frequency points',1);
-    set('wavelength center',573.933e-9);
+    set('wavelength center',572.8e-9);
+    set('enabled',0);
     
 select("resonance finder outside");
     set("radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler/2);
-    set("z",-tail/2);
+    set("z",source_zloc);
     set('enabled',1);
 
 select("resonance finder inside");
@@ -195,15 +263,15 @@ select("resonance finder inside");
     set("y",0);
     set("radius",cavity_diameter/2);
     set("z",-tail/2);
-    set('enabled',1);
+    set('enabled',0);
     
 select("Qanalysis");
     set("x",0);
     set("y",0);
     set("radius",cavity_diameter/2);
     set("z",-tail/2);
-  
-        
+    set('enabled',0);
+ 
 select("monitor yz");
     set('monitor type', '2D X-normal');
     set("x",0);
@@ -240,8 +308,9 @@ select("monitor xy");
 
 select("");
 
-filename = folder +'/'+ sim_name + newdetails ;
-#save(filename);
-#run;
+filename = folder + '/'+ sim_name + newdetails + 'no_beamBlock';
+print(filename);
+save(filename);
+run;
 cd(main_dir);
 system("powershell -c [console]::beep(500,500)");

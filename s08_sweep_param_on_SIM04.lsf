@@ -1,0 +1,36 @@
+clear;
+closeall;
+
+main_dir = pwd;
+
+sim_name = 'complex_outcouplers';
+
+folder = 'SIM04_' + sim_name;
+sweep_folder = 'sweep_start_radius';#scatter_size';
+filename = '_design_gd3_onSiO2_positive_filled_Dphi60_N12_sigma-1_m1';
+
+load(folder + '/' + sim_name + filename);
+cd(main_dir);
+select("pol splitter");
+grating_period = get('period');
+
+ 
+start_radius = linspace(1,4,20)*1e-6;
+#for (radial_FF  = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7] ){
+#for (lateral_FF = [0.9]) {
+for (i = 1:20) {
+    load(folder + '/' + sim_name + filename);
+    select("pol splitter");
+        set("start radius", start_radius(i));
+        #set("scatter width", radial_FF * grating_period);
+        #set("fill factor", lateral_FF);
+    name = sweep_folder  + '/scatterTests' + filename + '_diameter' +num2str(round(2*start_radius(i)*1e9)); #3500'_radialFF' + num2str(radial_FF) + '_lateralFF' + num2str(lateral_FF) ;
+    print(name);
+    save(name + '.fsp');
+    run;
+    system("powershell -c [console]::beep(500,500)");
+    cd(main_dir);
+}
+#}}
+
+system("powershell -c [console]::beep(800,10000)"); # valid for windows only ([Hz],[ms])

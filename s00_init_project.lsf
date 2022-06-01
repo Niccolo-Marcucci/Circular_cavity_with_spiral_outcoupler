@@ -10,9 +10,11 @@ deleteall;
 
 main_dir = pwd;
 
-sim_name = 'complex_outcouplers';
-folder = 'SIM04_'+ sim_name;
-details = '_base';
+sim_name = 'circular_cavity_spiral_outcoupler';
+
+#sim_name = 'complex_outcouplers';
+folder = 'SIM03_'+ sim_name;
+details = '_base_complex';
 filename = folder +'/'+ sim_name + details + '.fsp';
 
 lib_dir = "Lumerical-Objects/";                                    
@@ -38,9 +40,14 @@ set('name','circular cavity');
 spiral_outcoupler;
 set('name','outcoupler spiral groove');
 
-exponetial_outcoupler;
+exponential_outcoupler;
 
 metasurface_outcoupler;
+
+pol_splitting_outcoupler;
+set('name','pol splitter');
+
+radial_outcoupler;
 
 # elements in the standard library
 

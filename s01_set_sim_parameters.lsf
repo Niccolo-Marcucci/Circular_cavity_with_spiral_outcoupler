@@ -10,19 +10,19 @@ filename = folder +'/'+ sim_name + details;
 load(filename);
 cd(main_dir);
 
-design_name = '_TM';
-outcoupler_type = '_metasurface_filled';
+design_name = '_slot_waveguide';
+outcoupler_type = 'filled';
 pattern_type = 'negative';
 
 # source
-lambda=570e-9;
+lambda=620e-9;
 width=30e-9;
 
 # multilayer
 design_file = 'Lumerical-Objects/multilayer_design/designs/design'+design_name+'.mat';
 matlabload(design_file);  # contains layer description (idx_layers, d_layers, BSW effective indeces)
 d = d_layers;
-dg=0.4e-6;
+dg=0.2e-6;
 d(1) = dg ;
 d(end) = 0 ;                       # air
 tail = d(end-1);                   # last layer
@@ -52,24 +52,30 @@ if (pattern_type == 'positive') {
     unkown_name;          # should send an error
 }
     
-
+print(n_eff);
 #cavity_diameter = round(lambda/n_eff*1e9)*1e-9;
-
+D_phi = pi/3;
+sigma = -1;
+K_bsw = 2*pi*n_eff/lambda;
+s = (2*pi + sigma * 2*D_phi)/K_bsw;
 N_dbr = 0;
-N_outcoupler = 5;
-N_charge = 0;                     # topological charge
+N_outcoupler = 12;
+N_charge = 0;          # topological charge
 period_dbr = round(lambda/(n_eff1+n_eff3)*1e9)*1e-9;
-period_outcoupler = 2*period_dbr;
-spacing_cavity_outcoupler = 3000e-9;
+period_outcoupler = s; # 2*period_dbr;
+spacing_cavity_outcoupler = 2500e-9;
 spacing_after_outcoupler = 500e-9;
-outcoupler_tilt = 45/2;
-newdetails = design_name + outcoupler_type +'_charge'+ num2str(N_dbr)+'_tilt'+num2str(round(outcoupler_tilt)) +'_'+ pattern_type;
+scatter_width = s * 0.3;
+FF = .9;
+DD_phi = 0;
+
+newdetails = design_name+ '_slottedSource_'  + pattern_type + '_' + outcoupler_type + '_Dphi' + num2str(round(D_phi/pi*180)) + '_N' + num2str(N_outcoupler) + '_sigma' + num2str(sigma);# + '_DDphi' + num2str(DD_phi); # + '_scwidth' + num2str(round(scatter_width*1e9));#+ '_charge_'+ num2str(N_charge) 
 
 # domain
 L_domain = cavity_diameter+2*(N_dbr*period_dbr+spacing_cavity_outcoupler+
                N_outcoupler*period_outcoupler+period_outcoupler+spacing_after_outcoupler);
-PML_extension_xy = 1e-6;
-PML_extension_z = 1e-6;
+PML_extension_xy = .5e-6;
+PML_extension_z  = .5e-6;
 L_sample = L_domain + PML_extension_xy;
 d_air = 500e-9;
 
@@ -84,10 +90,10 @@ select("FDTD");
     set("z min",-thickness);
     set("z max",d_air);
     set("dimension","3D");
-    set("background index",1);
+    set("index",1);
     set("simulation time",10000e-15);
     set("auto shutoff min",1e-5);
-    set("mesh accuracy",2);
+    set("mesh accuracy",4);
     #set("x min bc",'Symmetric');
     #set("y min bc",'Symmetric');
 
@@ -101,7 +107,7 @@ select("mesh_top");
     set("dx",30e-9);
     set("dy",30e-9);
     set("dz",10e-9);
-    set('enabled',1);
+    set('enabled',0);
   
 select("multilayer");
     set("data file",design_file);
@@ -145,10 +151,10 @@ select("exponential outcoupler");
     set("start radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler);
     set("period",period_outcoupler);
     set("z min", -tail);
-    set("rectangle tilt",outcoupler_tilt);
+    set("groove tilt",45);
     set('enabled',0);
     
-select("metasurface outcoupler");
+select("radial outcoupler");
     set("index groove",groove_idx);
     set("n rings",N_outcoupler);
     set("topological charge",N_charge);
@@ -156,9 +162,41 @@ select("metasurface outcoupler");
     set("start radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler);
     set("period",period_outcoupler);
     set("z min", -tail);
-    set("rectangular element tilt",-outcoupler_tilt);
-    set("pattern type",'filled');
+    set('enabled',0);
+   
+select("metasurface outcoupler");
+    set('enabled',0);
+    
+ 
+select("pol splitter");
+    set("index groove",groove_idx);
+    set("N rings",N_outcoupler);
+    set("topological charge",N_charge);
+    set("thickness",tail);
+    set('scatter tilt',0);	     
+    set('scatter width',scatter_width);
+    set("start radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler);
+    set("period",period_outcoupler);
+    set("z min", -tail);
+    set("pattern type",outcoupler_type);
+    set('fill factor',FF);
+    set('D_phi',D_phi);
     set('enabled',1);
+    
+#select("pol splitter2");
+    #set("index groove",idx_layers(end-5));
+    #set("N rings",N_outcoupler);
+    #set("topological charge",N_charge);
+    #set("thickness",tail);
+    #set('scatter tilt',DD_phi);	     
+    #set('scatter width',scatter_width);
+    #set("start radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler);
+    #set("period",period_outcoupler);
+    #set("z min", -tail-d(end-2)-d(end-3)-d(end-4));
+    #set("pattern type",outcoupler_type);
+    #set('fill factor',FF);
+    #set('D_phi',D_phi);
+    #set('enabled',1);		
     
 select("beam block");
     set("radius",2*cavity_diameter+spacing_cavity_outcoupler/2);
@@ -195,6 +233,17 @@ select("top field power");
     set('wavelength center',lambda);
     set('wavelength span',30e-9);
     
+#select("bottom field power");
+    #set("x",0);
+    #set("y",0);
+    #set("x span",L_domain);
+    #set("y span",L_domain);
+    #set("z",-2.90e-6);
+    #set('override global monitor settings',1);
+    #set('use source limits',0);
+    #set('frequency points',1);
+    #set('wavelength center',lambda);
+    #set('wavelength span',30e-9);
 
 select("near field power");
     set("x",0);
@@ -206,11 +255,12 @@ select("near field power");
     set('use source limits',0);
     set('frequency points',1);
     set('wavelength center',lambda);
+    set('enabled',1);
     
 select("resonance finder outside");
     set("radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler/2);
     set("z",-tail/2);
-    set('enabled',1);
+    set('enabled',0);
 
 select("resonance finder inside");
     set("x",0);
@@ -218,12 +268,14 @@ select("resonance finder inside");
     set("radius",cavity_diameter/2);
     set("z",-tail/2);
     set('enabled',1);
+    set('enabled',0);
     
 select("Qanalysis");
     set("x",0);
     set("y",0);
     set("radius",cavity_diameter/2);
     set("z",-tail/2);
+    set('enabled',0);
   
         
 select("monitor yz");
@@ -263,7 +315,8 @@ select("monitor xy");
 select("");
 
 filename = folder +'/'+ sim_name + newdetails ;
+print(filename);
 save(filename);
-run;
+#run;
 cd(main_dir);
-#system("powershell -c [console]::beep(500,500)");
+system("powershell -c [console]::beep(500,500)");
