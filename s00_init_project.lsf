@@ -10,11 +10,11 @@ deleteall;
 
 main_dir = pwd;
 
-sim_name = 'circular_cavity_spiral_outcoupler';
+sim_name = 'metasurface_outcoupler';
 
 #sim_name = 'complex_outcouplers';
-folder = 'SIM03_'+ sim_name;
-details = '_base_complex';
+folder = 'SIM05_'+ sim_name;
+details = '_base';
 filename = folder +'/'+ sim_name + details + '.fsp';
 
 lib_dir = "Lumerical-Objects/";                                    

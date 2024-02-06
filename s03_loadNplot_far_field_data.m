@@ -4,10 +4,11 @@ clear,
 % folder="SIM03_circular_cavity_spiral_outcoupler/far_field_data/";
 % folder="SIM02_no_cavity_spiral_outcoupler/sweep_charge/far_field_data/";
 % folder="SIM02_no_cavity_spiral_outcoupler/far_field_data/";
-folder="SIM04_complex_outcouplers/far_field_data/";%";%
+folder="SIM05_metasurface_outcoupler/far_field_data/";%";%
 n_g=5;
 top_charge=0;
-names = ["_design_gd3_onSiO2_positive_filled_Ishape_Dphi-60_N12_sigma1_charge2"];
+
+names = ["_TM_AlOTiO2_N10positive_filled_Dphi60_N12_sigma-1_charge_0"];
 % 
 % i = 0;
 % for  DD_phi = [30 45 60 90]
@@ -76,7 +77,7 @@ for name = names
 
     % color maps
     col_vec=linspace(0,1,256);
-    map_wave=[col_vec' ones(256,1) col_vec' ;
+    map_wave=[col_vec' ones(256,1) col_vec'  ;
               ones(255,1) col_vec(end-1:-1:1)' col_vec(end-1:-1:1)'];
     map_wave_dark=[zeros(255,1) zeros(255,1) col_vec(end-1:-1:1)';
                    col_vec' zeros(256,1) zeros(256,1)];
@@ -90,22 +91,22 @@ for name = names
                    ones(255,1) col_vec(end-1:-1:1)' zeros(255,1)];
     %%
     xy_lim = [-1 1]*.2;
-%     fig = figure('units','normalized','outerposition',[0 0 1 1]);
-    subplot(2,2,1)
+    fig = figure('units','normalized','outerposition',[0 0 1 1]);
+    subplot(2,3,1)
     plot_surf(ux,uy,abs(ER).^2,'hot',"Right circular polarization intensity");
     caxis([E_min E_max])
     xlim(xy_lim)
     ylim(xy_lim)
-    subplot(2,2,2)
+    subplot(2,3,2)
     plot_surf(ux,uy,abs(EL).^2,'hot',"Left circular polarization intensity");
     caxis([E_min E_max])
     xlim(xy_lim)
     ylim(xy_lim)
-    subplot(2,2,3)
+    subplot(2,3,4)
     plot_surf(ux,uy,angle(ER),'hot',"Right circular polarization phase");
     xlim(xy_lim)
     ylim(xy_lim)
-    subplot(2,2,4)
+    subplot(2,3,5)
     plot_surf(ux,uy,angle(EL),'hot',"Left circular polarization phase");
     xlim(xy_lim)
     ylim(xy_lim)
@@ -118,9 +119,9 @@ for name = names
     subplot(2,3,6)
 %     plot_surf(ux,uy,angle(E),'hot',"E=\surd(Ex^2+Ey^2) phase");
     
-    plot_masked(ux,uy,real(tan(chi)),E2,map_wave,"eccentricity tan\chi",'symmetric',1);
-%     xlim(xy_lim)
-%     ylim(xy_lim)
+    plot_masked(ux,uy,real(tan(chi)),E2,map_wave,"eccentricity tan\chi",'symmetric',1, 0.05);
+    % xlim(xy_lim)
+    % ylim(xy_lim)
     
 %     sgtitle({strcat('{\fontsize{8} ',strrep(details,'_','\_'),'}');...
 %         ['Topological charge ',num2str(top_charge)]},'fontsize',18,'fontweight','bold');
@@ -135,15 +136,15 @@ function rgbImage = getRGB(data,map)
     rgbImage = ind2rgb(data,map);
 end
 
-function plot_masked(ux,uy,quantity,mask,map,picture_title,zsymmetry,massimo)
+function plot_masked(ux,uy,quantity,mask,map,picture_title,zsymmetry,massimo,threshold)
     rgbImage = getRGB(quantity,map);
     mask = (mask - min(mask(:))) / (max(mask(:)) - min(mask(:)));
-    binary_mask = repmat(mask < 0.05,1,1,3);
+    binary_mask = repmat(mask < threshold,1,1,3);
     
     grayImage =  repmat(mean(rgbImage,3),1,1,3);
     rgbImage(binary_mask) = grayImage(binary_mask);
     
-    imshow(rgbImage);
+    imshow(rgbImage(abs(ux)<0.2,abs(uy)<0.2,:));
     
     ax = gca;
     set(ax,'YDir','normal') 

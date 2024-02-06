@@ -3,19 +3,19 @@
 
 main_dir = pwd; 
 
-sim_name = 'complex_outcouplers';
-folder = 'SIM04_'+ sim_name;
+sim_name = 'metasurface_outcoupler';
+folder = 'SIM05_'+ sim_name;
 details = '_base';
 filename = folder +'/'+ sim_name + details;
 load(filename);
 cd(main_dir);
 
-design_name = '_slot_waveguide';
+design_name = '_TM_AlOTiO2_N10';
 outcoupler_type = 'filled';
-pattern_type = 'negative';
+pattern_type = 'positive';
 
 # source
-lambda=620e-9;
+lambda=570e-9;
 width=30e-9;
 
 # multilayer
@@ -55,21 +55,21 @@ if (pattern_type == 'positive') {
 print(n_eff);
 #cavity_diameter = round(lambda/n_eff*1e9)*1e-9;
 D_phi = pi/3;
-sigma = -1;
+sigma = 1;
 K_bsw = 2*pi*n_eff/lambda;
 s = (2*pi + sigma * 2*D_phi)/K_bsw;
 N_dbr = 0;
 N_outcoupler = 12;
-N_charge = 0;          # topological charge
+N_charge = 1;          # topological charge
 period_dbr = round(lambda/(n_eff1+n_eff3)*1e9)*1e-9;
 period_outcoupler = s; # 2*period_dbr;
 spacing_cavity_outcoupler = 2500e-9;
 spacing_after_outcoupler = 500e-9;
 scatter_width = s * 0.3;
 FF = .9;
-DD_phi = 0;
+#DD_phi = 0;
 
-newdetails = design_name+ '_slottedSource_'  + pattern_type + '_' + outcoupler_type + '_Dphi' + num2str(round(D_phi/pi*180)) + '_N' + num2str(N_outcoupler) + '_sigma' + num2str(sigma);# + '_DDphi' + num2str(DD_phi); # + '_scwidth' + num2str(round(scatter_width*1e9));#+ '_charge_'+ num2str(N_charge) 
+newdetails = design_name+ ''  + pattern_type + '_' + outcoupler_type + '_Dphi' + num2str(round(D_phi/pi*180)) + '_N' + num2str(N_outcoupler) + '_sigma' + num2str(sigma)+ '_charge_'+ num2str(N_charge) ;# + '_DDphi' + num2str(DD_phi); # + '_scwidth' + num2str(round(scatter_width*1e9));#
 
 # domain
 L_domain = cavity_diameter+2*(N_dbr*period_dbr+spacing_cavity_outcoupler+
@@ -93,7 +93,7 @@ select("FDTD");
     set("index",1);
     set("simulation time",10000e-15);
     set("auto shutoff min",1e-5);
-    set("mesh accuracy",4);
+    set("mesh accuracy",3);
     #set("x min bc",'Symmetric');
     #set("y min bc",'Symmetric');
 
@@ -113,6 +113,7 @@ select("multilayer");
     set("data file",design_file);
     set("substrate thickness",dg+PML_extension_z);
     set("domain size", L_sample); 
+    set('enabled',1);
     
 select('dummy layer');
     set("x",0);
@@ -122,6 +123,7 @@ select('dummy layer');
     set('z min',-tail);
     set('z max',0);
     set('index',base_idx);
+    set('enabled',1);
     
 select("circular cavity");
     set("N_periods", N_dbr);
@@ -172,9 +174,11 @@ select("pol splitter");
     set("index groove",groove_idx);
     set("N rings",N_outcoupler);
     set("topological charge",N_charge);
+    set("topology","spiral");
     set("thickness",tail);
     set('scatter tilt',0);	     
     set('scatter width',scatter_width);
+    set('scatter shape',"");
     set("start radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler);
     set("period",period_outcoupler);
     set("z min", -tail);
@@ -319,4 +323,4 @@ print(filename);
 save(filename);
 #run;
 cd(main_dir);
-system("powershell -c [console]::beep(500,500)");
+#system("powershell -c [console]::beep(500,500)");

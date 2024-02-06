@@ -2,16 +2,16 @@ clear;
 main_dir = pwd; 
 charge = 0;
 
-sim_name = 'circular_cavity_spiral_outcoupler';
+sim_name = 'metasurface_outcoupler';
 #sim_name = 'complex_outcouplers';
 
-folder = 'SIM03_'+ sim_name ;#+ '/' + 'sweep_charge'_and_ngrating';
+folder = 'SIM05_'+ sim_name ;#+ '/' + 'sweep_charge'_and_ngrating';
 #details = '_negative_charge'+num2str(charge)+'_finerMeshed';#+'_N'+num2str(n_g)+'_tilt45'
 details = '_TM_radial'+'_charge'+num2str(charge)+'_negative';#
 details = '_TM_exponential_DBR_n_radial_outcoupler_tilt45_negative';#
 details = '_TM_segmented_tilted10_charge0_negative';#
 details = '_design_gd3_onSiO2_positive_filled_Dphi60_N12_sigma-1_m1_correctKmeas';
-details = '_design_gd3_onSiO2_positive_filled_Ishape_Dphi-60_N12_sigma1_charge1_Ndbr35';
+details = '_TM_AlOTiO2_N10positive_filled_Dphi60_N12_sigma-1_charge_0';
 #details = '_slot_waveguide_negative_filled_Dphi60_N12_sigma-1';
 
 

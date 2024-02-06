@@ -3,9 +3,6 @@ closeall;
 
 main_dir = pwd;
 
-sim_name01 = 'circular_cavity_without_outcoupler';
-sim_name02 = 'no_cavity_spiral_outcoupler';
-sim_name03 = 'circular_cavity_spiral_outcoupler';
 
 #sim_name = sim_name01;
 #folder = 'SIM01_'+ sim_name;
@@ -24,34 +21,14 @@ sim_name03 = 'circular_cavity_spiral_outcoupler';
 #cd(main_dir);
 #system("powershell -c [console]::beep(500,500)");
 
-#details = '_design7_N42_negative';
-#filename = folder +'/'+ sim_name + details + '.fsp';
-#load(filename);
-#run;
-#cd(main_dir);
-#system("powershell -c [console]::beep(500,500)");
 
-#details = '_design_guided_N48_negative';
-#filename = folder +'/'+ sim_name + details + '.fsp';
-#load(filename);
-#run;
-#cd(main_dir);
-
-
-load('SIM04_complex_outcouplers/complex_outcouplers_TM_Descrovi_multilayered_outcoupler_negative_filled_Dphi60_N12_sigma-1_DDphi30');
+load('SIM05_metasurface_outcoupler/metasurface_outcoupler_TM_AlOTiO2_N10positive_filled_Dphi60_N12_sigma1_charge_1');
 run;
 cd(main_dir);
 
-load('SIM04_complex_outcouplers/complex_outcouplers_TM_Descrovi_multilayered_outcoupler_negative_filled_Dphi60_N12_sigma-1_DDphi45');
+load('SIM05_metasurface_outcoupler/metasurface_outcoupler_TM_AlOTiO2_N10positive_filled_Dphi60_N12_sigma-1_charge_1');
 run;
 cd(main_dir);
 
-load('SIM04_complex_outcouplers/complex_outcouplers_TM_Descrovi_multilayered_outcoupler_negative_filled_Dphi60_N12_sigma-1_DDphi60');
-run;
-cd(main_dir);
 
-load('SIM04_complex_outcouplers/complex_outcouplers_TM_Descrovi_multilayered_outcoupler_negative_filled_Dphi60_N12_sigma-1_DDphi90');
-run;
-cd(main_dir);
-
-system("powershell -c [console]::beep(600,10000)"); # valid for windows only ([Hz],[ms])
+#system("powershell -c [console]::beep(600,10000)"); # valid for windows only ([Hz],[ms])
