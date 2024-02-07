@@ -1,13 +1,21 @@
+
 clear,
 % close all
+addpath('Lumerical-Objects/multilayer_design/functions');
+
+
 % folder="SIM02_no_cavity_spiral_outcoupler/sweep_charge_and_ngrating/far_field_data/";
 % folder="SIM03_circular_cavity_spiral_outcoupler/far_field_data/";
 % folder="SIM02_no_cavity_spiral_outcoupler/sweep_charge/far_field_data/";
 % folder="SIM02_no_cavity_spiral_outcoupler/far_field_data/";
 folder="SIM04_complex_outcouplers/far_field_data/";%sweep_scatter_size/far_field_data/"; %
 % folder="SIM04_complex_outcouplers/sweep_start_radius/far_field_data/"; %
+
+folder="SIM05_metasurface_outcoupler/far_field_data/";%";%
+n_g=5;
 top_charge=0;
-name = ["_design_gd3_onSiO2_positive_radial_Ishape_Dphi60_N12_sigma-1_m1"];%_design_gd3_onSiO2_positive_filled_Dphi60_N18_sigma-1_m1"];%"_TM_segmented"];%exponential_DBR_n_radial_outcoupler_metasurface_filled_Hdipole_moreTurns,"_TM_larger_domain","_TM_larger_domain_oring"]
+
+name = "_TM_AlOTiO2_N10positive_filled_Dphi60_N12_sigma-1_charge_1";
 
 fig = figure('units','normalized','outerposition',[0 0 1 1]);
 i=0;
@@ -98,8 +106,10 @@ for j = 1%start_radius = linspace(1, 4, 20)*1e3
     plot(beta, ER_r, beta, EL_r);
     nicePlot
 %     title(strcat(string(round(radial_FF * period)),'nmX',string(round(lateral_FF * period)),'nm'),'fontsize',12)
-    title(strcat("diameter ", string(round(start_radius*2/1000,1))))
-    xlabel('K_r') 
+    % title(strcat("diameter ", string(round(start_radius*2/1000,1))))
+    xlabel('u_T') 
+    ylabel('Average Energy on a circle')
+    nicePlot;
     drawnow;
     
     ROI = beta<0.3;
@@ -108,8 +118,9 @@ for j = 1%start_radius = linspace(1, 4, 20)*1e3
     EL_max(i) = max(EL_r(ROI));
 %     end
 end
-saveas(fig,strcat(folder,"radial_far_field_PLOT",details,'.png')   )
-saveas(fig,strcat(folder,"radial_far_field_PLOT",details,'.fig')   )
+saveas(fig,strcat(folder,"radial_far_field_PLOT",name),'png')   
+saveas(fig,strcat(folder,"radial_far_field_PLOT",name),'fig')   
+stop;
 %%
 fig = figure
 subplot(1,2,1)

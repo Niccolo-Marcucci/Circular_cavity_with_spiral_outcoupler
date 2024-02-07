@@ -54,13 +54,13 @@ if (pattern_type == 'positive') {
     
 print(n_eff);
 #cavity_diameter = round(lambda/n_eff*1e9)*1e-9;
-D_phi = pi/3;
-sigma = 1;
+D_phi = -pi/3;
+sigma = -1;
 K_bsw = 2*pi*n_eff/lambda;
 s = (2*pi + sigma * 2*D_phi)/K_bsw;
 N_dbr = 0;
 N_outcoupler = 12;
-N_charge = 1;          # topological charge
+N_charge = 0;          # topological charge
 period_dbr = round(lambda/(n_eff1+n_eff3)*1e9)*1e-9;
 period_outcoupler = s; # 2*period_dbr;
 spacing_cavity_outcoupler = 2500e-9;
@@ -69,7 +69,7 @@ scatter_width = s * 0.3;
 FF = .9;
 #DD_phi = 0;
 
-newdetails = design_name+ ''  + pattern_type + '_' + outcoupler_type + '_Dphi' + num2str(round(D_phi/pi*180)) + '_N' + num2str(N_outcoupler) + '_sigma' + num2str(sigma)+ '_charge_'+ num2str(N_charge) ;# + '_DDphi' + num2str(DD_phi); # + '_scwidth' + num2str(round(scatter_width*1e9));#
+newdetails = design_name+ ''  + pattern_type + '_' + outcoupler_type +  '_scShapeI'+ '_Dphi' + num2str(round(D_phi/pi*180)) + '_N' + num2str(N_outcoupler) + '_sigma' + num2str(sigma)+ '_charge'+ num2str(N_charge) ;# + '_DDphi' + num2str(DD_phi); # + '_scwidth' + num2str(round(scatter_width*1e9));#
 
 # domain
 L_domain = cavity_diameter+2*(N_dbr*period_dbr+spacing_cavity_outcoupler+
@@ -178,7 +178,7 @@ select("pol splitter");
     set("thickness",tail);
     set('scatter tilt',0);	     
     set('scatter width',scatter_width);
-    set('scatter shape',"");
+    set('scatter shape',"I");
     set("start radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler);
     set("period",period_outcoupler);
     set("z min", -tail);

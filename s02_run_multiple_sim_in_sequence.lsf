@@ -21,14 +21,18 @@ main_dir = pwd;
 #cd(main_dir);
 #system("powershell -c [console]::beep(500,500)");
 
-
-load('SIM05_metasurface_outcoupler/metasurface_outcoupler_TM_AlOTiO2_N10positive_filled_Dphi60_N12_sigma1_charge_1');
+for (dphi = -60:120:60){
+for (sigma = -1:2:1){
+for (charge = -1:1){
+load('SIM05_metasurface_outcoupler/metasurface_outcoupler_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge));
+print('Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge));
 run;
 cd(main_dir);
+}}}
 
-load('SIM05_metasurface_outcoupler/metasurface_outcoupler_TM_AlOTiO2_N10positive_filled_Dphi60_N12_sigma-1_charge_1');
-run;
-cd(main_dir);
+#load('SIM05_metasurface_outcoupler/metasurface_outcoupler_TM_AlOTiO2_N10positive_filled_Dphi60_N12_sigma-1_charge_1');
+#run;
+#cd(main_dir);
 
 
 #system("powershell -c [console]::beep(600,10000)"); # valid for windows only ([Hz],[ms])

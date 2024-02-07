@@ -1,5 +1,6 @@
 clear,
-% close all
+close all
+clear all
 % folder="SIM02_no_cavity_spiral_outcoupler/sweep_charge_and_ngrating/far_field_data/";
 % folder="SIM03_circular_cavity_spiral_outcoupler/far_field_data/";
 % folder="SIM02_no_cavity_spiral_outcoupler/sweep_charge/far_field_data/";
@@ -8,7 +9,7 @@ folder="SIM05_metasurface_outcoupler/far_field_data/";%";%
 n_g=5;
 top_charge=0;
 
-names = ["_TM_AlOTiO2_N10positive_filled_Dphi60_N12_sigma-1_charge_0"];
+names = ["_TM_AlOTiO2_N10positive_filled_Dphi60_N12_sigma-1_charge_-1"];
 % 
 % i = 0;
 % for  DD_phi = [30 45 60 90]
