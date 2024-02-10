@@ -8,7 +8,6 @@ sim_name = 'metasurface_outcoupler';
 folder = 'SIM05_'+ sim_name ;#+ '/' + 'sweep_charge'_and_ngrating';
 #details = '_negative_charge'+num2str(charge)+'_finerMeshed';#+'_N'+num2str(n_g)+'_tilt45'
 details = '_TM_radial'+'_charge'+num2str(charge)+'_negative';#
-details = '_TM_AlOTiO2_N10positive_filled_Dphi60_N12_sigma-1_charge_-1';
 
 
 #complex_outcouplers_TM_exponential_DBR_n_radial_outcoupler_tilt45_negative
@@ -22,9 +21,18 @@ details = '_TM_AlOTiO2_N10positive_filled_Dphi60_N12_sigma-1_charge_-1';
     #start_radius = start_radius_v(i);
     #filename = folder +'/'+ 'sweep_scatter_size/scatterTests_design_gd3_onSiO2_positive_filled_Dphi60_N12_sigma-1_m1_radialFF' + num2str(radial_FF) + '_lateralFF' +num2str(lateral_FF)+ '.fsp'; #sim_name + details + '.fsp' ;
     #filename = folder +'/'+ 'sweep_start_radius/scatterTests_design_gd3_onSiO2_positive_filled_Dphi60_N12_sigma-1_m1_diameter' + num2str(round(2*start_radius*1e9));
-filename = folder +'/'+ sim_name + details;
-load(filename);
+for (dphi = -60:120:60){
+for (sigma = -1:2:1){
+for (charge = -1:1){
+details = '_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge);
+load('SIM05_metasurface_outcoupler/metasurface_outcoupler' + details);
+print('Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge));
+
 cd(main_dir);
+
+index = getdata("monitor xy", "index_x");
+x = getdata("monitor xy", "x");
+y = getdata("monitor xy", "y");
 
 Ef = farfieldvector3d("top field power",1,5000,5000);
 #Ef = farfieldpolar3d("top field power",1,5000,5000);
@@ -41,7 +49,7 @@ uy = uy(useful_uy);
 Ex = pinch(Ef(useful_ux,useful_uy,1));
 Ey = pinch(Ef(useful_ux,useful_uy,2));
 Ez = pinch(Ef(useful_ux,useful_uy,3));
-matlabsave(folder+'/far_field_data/'+'far_field_data' + details,ux,uy,Ex,Ey,Ez);
+matlabsave(folder+'/far_field_data/'+'far_field_data' + details,ux,uy,Ex,Ey,Ez,x,y,index);
 #matlabsave(folder+'/sweep_scatter_size/far_field_data/'+'far_field_data' + '_design_gd3_onSiO2_positive_filled_Dphi60_N12_sigma-1_m1_radialFF' + num2str(radial_FF) + '_lateralFF' +num2str(lateral_FF)+ '.mat',ux,uy,Ex,Ey,Ez);
 #matlabsave(folder+'/sweep_start_radius/far_field_data/'+'far_field_data' + '_design_gd3_onSiO2_positive_filled_Dphi60_N12_sigma-1_m1_diameter' + num2str(round(2*start_radius*1e9)) + '.mat',ux,uy,Ex,Ey,Ez);
 
@@ -52,6 +60,6 @@ matlabsave(folder+'/far_field_data/'+'far_field_data' + details,ux,uy,Ex,Ey,Ez);
 #E_theta=Ey;
 #E_phi=Ez;
 #matlabsave(folder+'/far_field_data/'+'far_field_data'+ details+'PHI',ux,uy,E_theta,E_phi);
-system("powershell -c [console]::beep(500,500)");
-#}}
-#}
+#system("powershell -c [console]::beep(500,500)");
+}}
+}

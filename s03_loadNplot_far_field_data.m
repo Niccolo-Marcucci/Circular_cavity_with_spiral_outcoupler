@@ -6,10 +6,14 @@ clear all
 % folder="SIM02_no_cavity_spiral_outcoupler/sweep_charge/far_field_data/";
 % folder="SIM02_no_cavity_spiral_outcoupler/far_field_data/";
 folder="SIM05_metasurface_outcoupler/far_field_data/";%";%
-n_g=5;
-top_charge=0;
 
-names = ["_TM_AlOTiO2_N10positive_filled_Dphi60_N12_sigma-1_charge_-1"];
+names = [];
+for dphi = -60:120:60
+for sigma = -1:2:1
+for charge = -1:1
+details = ['_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi',num2str(dphi),'_N12_sigma',num2str(sigma),'_charge', num2str(charge)];
+names = [names, string(details)];
+end;end;end
 % 
 % i = 0;
 % for  DD_phi = [30 45 60 90]
@@ -31,10 +35,19 @@ names = ["_TM_AlOTiO2_N10positive_filled_Dphi60_N12_sigma-1_charge_-1"];
 % EL0 = sqrt(2)/2*Ex + sqrt(2)/2*Ey*exp(+1i*pi/2);
 
 for name = names
-    
+    load(strcat(folder,"far_field_data",name))
+    % load(strcat(folder,"near_field_index_data",name))
+    fig1=figure()
+    imagesc(x,y,real(transpose(idx)));
+    ax = gca;
+    set(ax,'YDir','normal') 
+    colorbar
+    xlabel("x");
+    ylabel('y');
+    axis('square')
+    saveas(fig1,strcat(folder,"grating_PLOT",name),'png');
+    close(fig1);
 
-    load(strcat(folder,"far_field_data",name));
-  
     % convert to matlab reference frame
     Ex=transpose(Ex);
     Ey=transpose(Ey);
@@ -127,7 +140,8 @@ for name = names
 %     sgtitle({strcat('{\fontsize{8} ',strrep(details,'_','\_'),'}');...
 %         ['Topological charge ',num2str(top_charge)]},'fontsize',18,'fontweight','bold');
     
-    saveas(fig,strcat(folder,"far_field_PLOT",name),'png')   
+    saveas(fig,strcat(folder,"far_field_PLOT",name),'png')
+
 end
 % 
 function rgbImage = getRGB(data,map)
