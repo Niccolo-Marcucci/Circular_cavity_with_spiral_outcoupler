@@ -1,5 +1,5 @@
 clear,
-close all
+% close all
 clear all
 % folder="SIM02_no_cavity_spiral_outcoupler/sweep_charge_and_ngrating/far_field_data/";
 % folder="SIM03_circular_cavity_spiral_outcoupler/far_field_data/";
@@ -8,10 +8,10 @@ clear all
 folder="SIM05_metasurface_outcoupler/far_field_data/";%";%
 
 names = [];
-for dphi = -60:120:60
-for sigma = -1:2:1
-for charge = -1:1
-details = ['_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi',num2str(dphi),'_N12_sigma',num2str(sigma),'_charge', num2str(charge)];
+for dphi = -30%-60:120:60
+for sigma = 1%-1:2:1
+for charge = 0%-1:1
+details = ['_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi',num2str(dphi),'_N18_sigma',num2str(sigma),'_charge', num2str(charge)];
 names = [names, string(details)];
 end;end;end
 % 
@@ -37,16 +37,16 @@ end;end;end
 for name = names
     load(strcat(folder,"far_field_data",name))
     % load(strcat(folder,"near_field_index_data",name))
-    fig1=figure()
-    imagesc(x,y,real(transpose(idx)));
-    ax = gca;
-    set(ax,'YDir','normal') 
-    colorbar
-    xlabel("x");
-    ylabel('y');
-    axis('square')
-    saveas(fig1,strcat(folder,"grating_PLOT",name),'png');
-    close(fig1);
+    % fig1=figure();
+    % imagesc(x,y,real(transpose(index)));
+    % ax = gca;
+    % set(ax,'YDir','normal') 
+    % colorbar
+    % xlabel("x");
+    % ylabel('y');
+    % axis('square')
+    % saveas(fig1,strcat(folder,"grating_PLOT",name),'png');
+    % close(fig1);
 
     % convert to matlab reference frame
     Ex=transpose(Ex);
@@ -133,14 +133,14 @@ for name = names
     subplot(2,3,6)
 %     plot_surf(ux,uy,angle(E),'hot',"E=\surd(Ex^2+Ey^2) phase");
     
-    plot_masked(ux,uy,real(tan(chi)),E2,map_wave,"eccentricity tan\chi",'symmetric',1, 0.05);
+    plot_masked(ux,uy,real(tan(chi)),E2,map_wave,"eccentricity tan\chi",'symmetric',1, 0.1);
     % xlim(xy_lim)
     % ylim(xy_lim)
     
 %     sgtitle({strcat('{\fontsize{8} ',strrep(details,'_','\_'),'}');...
 %         ['Topological charge ',num2str(top_charge)]},'fontsize',18,'fontweight','bold');
     
-    saveas(fig,strcat(folder,"far_field_PLOT",name),'png')
+    % saveas(fig,strcat(folder,"far_field_PLOT",name),'png')
 
 end
 % 
@@ -157,6 +157,7 @@ function plot_masked(ux,uy,quantity,mask,map,picture_title,zsymmetry,massimo,thr
     binary_mask = repmat(mask < threshold,1,1,3);
     
     grayImage =  repmat(mean(rgbImage,3),1,1,3);
+    grayImage = grayImage * 0.8;
     rgbImage(binary_mask) = grayImage(binary_mask);
     
     imshow(rgbImage(abs(ux)<0.2,abs(uy)<0.2,:));
