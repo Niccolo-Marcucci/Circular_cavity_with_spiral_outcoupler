@@ -5,15 +5,23 @@ clear all
 % folder="SIM03_circular_cavity_spiral_outcoupler/far_field_data/";
 % folder="SIM02_no_cavity_spiral_outcoupler/sweep_charge/far_field_data/";
 % folder="SIM02_no_cavity_spiral_outcoupler/far_field_data/";
-folder="SIM05_metasurface_outcoupler/far_field_data/";%";%
+folder="SIM05_metasurface_outcoupler/scatterTests/far_field_data/";%";%
 
 names = [];
-for dphi = -30%-60:120:60
-for sigma = 1%-1:2:1
-for charge = 0%-1:1
-details = ['_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi',num2str(dphi),'_N18_sigma',num2str(sigma),'_charge', num2str(charge)];
-names = [names, string(details)];
-end;end;end
+for dphi = -60%-60:120:60
+    % for sigma = 1%-1:2:1
+    %     for charge = 0%-1:1
+    i = 0;
+    sigma = 1;
+    charge = 0;
+    for sc_width  = [25, 50, 75, 100, 125, 150]
+        for sc_length = [250, 275, 300, 325]
+            % details = '_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge) + '_scWidth'+ num2str(sc_width) + '_scLength'+ num2str(sc_length);
+            details = ['_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi',num2str(dphi),'_N12_sigma',num2str(sigma),'_charge', num2str(charge), '_scWidth', num2str(sc_width), '_scLength', num2str(sc_length)];
+            names = [names, string(details)];
+        end
+    end
+end
 % 
 % i = 0;
 % for  DD_phi = [30 45 60 90]
@@ -44,7 +52,7 @@ for name = names
     % colorbar
     % xlabel("x");
     % ylabel('y');
-    % axis('square')
+    % axis('equal')
     % saveas(fig1,strcat(folder,"grating_PLOT",name),'png');
     % close(fig1);
 
@@ -125,11 +133,16 @@ for name = names
     xlim(xy_lim)
     ylim(xy_lim)
     subplot(2,3,3)
-    plot_surf(ux,uy,E2,'parula','Total Intensity');
+    plot_surf(x,y,real(transpose(index)),'cool','Refractive index map');
+    xlim([-4,4]*1e-6)
+    ylim([-4,4]*1e-6)
+    xlabel("x");
+    ylabel('y');
+    % plot_surf(ux,uy,E2,'parula','Total Intensity');
 %     plot_surf(ux,uy,real(S3./max(max(S0))),'jet',"S3/max(S0) Stokes parameter",1);
 %     plot_surf(ux,uy,real(S3),map_yell_dark,"S3 Stokes parameter",'symmetric');
-    xlim(xy_lim)
-    ylim(xy_lim)
+    % xlim(xy_lim)
+    % ylim(xy_lim)
     subplot(2,3,6)
 %     plot_surf(ux,uy,angle(E),'hot',"E=\surd(Ex^2+Ey^2) phase");
     
@@ -140,8 +153,8 @@ for name = names
 %     sgtitle({strcat('{\fontsize{8} ',strrep(details,'_','\_'),'}');...
 %         ['Topological charge ',num2str(top_charge)]},'fontsize',18,'fontweight','bold');
     
-    % saveas(fig,strcat(folder,"far_field_PLOT",name),'png')
-
+    saveas(fig,strcat(folder,"far_field_PLOT",name),'png')
+    close(fig);
 end
 % 
 function rgbImage = getRGB(data,map)
