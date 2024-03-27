@@ -5,7 +5,7 @@ clear all
 % folder="SIM03_circular_cavity_spiral_outcoupler/far_field_data/";
 % folder="SIM02_no_cavity_spiral_outcoupler/sweep_charge/far_field_data/";
 % folder="SIM02_no_cavity_spiral_outcoupler/far_field_data/";
-folder="SIM05_metasurface_outcoupler/scatterTests/far_field_data/";%";%
+folder="SIM05_metasurface_outcoupler/far_field_data/";%";%
 
 names = [];
 for dphi = -60%-60:120:60
@@ -13,14 +13,14 @@ for dphi = -60%-60:120:60
     %     for charge = 0%-1:1
     i = 0;
     sigma = 1;
-    charge = 0;
-    for sc_width  = [25, 50, 75, 100, 125, 150]
-        for sc_length = [250, 275, 300, 325]
+    charge = 1;
+    % for sc_width  = [25, 50, 75, 100, 125, 150]
+    %     for sc_length = [250, 275, 300, 325]
             % details = '_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge) + '_scWidth'+ num2str(sc_width) + '_scLength'+ num2str(sc_length);
-            details = ['_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi',num2str(dphi),'_N12_sigma',num2str(sigma),'_charge', num2str(charge), '_scWidth', num2str(sc_width), '_scLength', num2str(sc_length)];
+            details = ['_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi',num2str(dphi),'_N24_sigma',num2str(sigma),'_charge', num2str(charge)];
             names = [names, string(details)];
-        end
-    end
+    %     end
+    % end
 end
 % 
 % i = 0;

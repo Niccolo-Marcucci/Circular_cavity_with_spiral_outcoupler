@@ -1,7 +1,7 @@
 clear,
 % close all
 clear all
-folder="SIM05_metasurface_outcoupler/scatterTests/far_field_data/";%";%
+folder="SIM05_metasurface_outcoupler/a/far_field_data/";%";%
 
 power_ratio = [];
 total_power = [];
@@ -20,7 +20,7 @@ for dphi = -60%-60:120:60
         l = 0;
         for sc_length = sc_length_v
             l=l+1;
-            details = ['_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi',num2str(dphi),'_N12_sigma',num2str(sigma),'_charge', num2str(charge), '_scWidth', num2str(sc_width), '_scLength', num2str(sc_length)];
+            details = ['_TM_AlOTiO2_N10negative_filled_scShapeI_Dphi',num2str(dphi),'_N12_sigma',num2str(sigma),'_charge', num2str(charge), '_scWidth', num2str(sc_width), '_scLength', num2str(sc_length)];
             name =  string(details);
     load(strcat(folder,"far_field_data",name))
 
