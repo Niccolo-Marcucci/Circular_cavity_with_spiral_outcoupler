@@ -6,7 +6,7 @@ main_dir = pwd;
 sim_name = 'metasurface_outcoupler';
 
 folder = 'SIM05_' + sim_name;
-filename = '_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi-60_N12_sigma1_charge0';
+filename = '_TM_AlOTiO2_N10_TiO2topped_positive_filled_scShapeI_Dphi-60_N12_sigma1_charge0';
 sweep_folder = 'a';# sim_name + filename;
 
 load(folder + '/' + sim_name + filename);
@@ -19,26 +19,26 @@ sc_length = lateral_FF*lambda;
 print(sc_length*1e9);
 print(sc_width*1e9);
 print(lambda*1e9);
-#i = 0;
-#for (sc_width  = [25, 50, 75, 100, 125, 150] ){
-#for (sc_length = [250, 275, 300, 325]) {
-    #i = i +1;
-    #if (i == 1) {
-    #print(num2str(i) + 'skipped');
-    #} else {
-    #load(folder + '/' + sim_name + filename);
-    #select("pol splitter");
-        #set("scatter width", sc_width*1e-9);
-        #set("fill factor", sc_length*1e-9/lambda);
-    #name = sweep_folder  + '/scatterTests' + filename + '_scWidth' + num2str(sc_width) + '_scLength' + num2str(sc_length) ;
-    #print(num2str(i));
-    #print(name);
-    #save(name + '.fsp');
-    #cd(main_dir);
-    #run;
-    #cd(main_dir);
+i = 0;
+for (sc_width  = [25, 50, 75, 100, 125, 150] ){
+for (sc_length = [250, 275, 300, 325]) {
+    i = i +1;
+    if (i < 18) {
+    print(num2str(i) + 'skipped');
+    } else {
+    load(folder + '/' + sim_name + filename);
+    select("pol splitter");
+        set("scatter width", sc_width*1e-9);
+        set("fill factor", sc_length*1e-9/lambda);
+    name = sweep_folder  + '/scatterTests' + filename + '_scWidth' + num2str(sc_width) + '_scLength' + num2str(sc_length) ;
+    print(num2str(i));
+    print(name);
+    save(name + '.fsp');
+    cd(main_dir);
+    run;
+    cd(main_dir);
     #system("powershell -c [console]::beep(500,500)");
-    #}
-#}}
+    }
+}}
 
 #system("powershell -c [console]::beep(800,10000)"); # valid for windows only ([Hz],[ms])

@@ -113,21 +113,18 @@ subplot(2,2,2)
 imagesc(sc_width_v,sc_length_v,max_chi);
 % s.EdgeColor='none';
 title('max \chi' )
-title('\chi at max')
 xlabel('scatter width - nm')
 ylabel('scatter length - nm')
 colorbar
 subplot(2,2,3)
 imagesc(sc_width_v,sc_length_v,power_ratio);
 title('ER/EL')
-title('\chi at max')
 xlabel('scatter width - nm')
 ylabel('scatter length - nm')
 colorbar
 subplot(2,2,4)
 imagesc(sc_width_v,sc_length_v,total_power);
 title('total power')
-title('\chi at max')
 xlabel('scatter width - nm')
 ylabel('scatter length - nm')
 colorbar
