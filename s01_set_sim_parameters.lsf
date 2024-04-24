@@ -10,13 +10,13 @@ filename = folder +'/'+ sim_name + details;
 load(filename);
 cd(main_dir);
 
-design_name = '_TM_AlOTiO2_N10';
+design_name = '_TM_SiO2TiO2_532_N9';
 outcoupler_type = 'filled';
-pattern_type = 'negative';
+pattern_type = 'positive';
 
 # source
-lambda=570e-9;
-width=30e-9;
+lambda=532e-9;
+source_width=30e-9;
 
 # multilayer
 design_file = 'Lumerical-Objects/multilayer_design/designs/design'+design_name+'.mat';
@@ -219,7 +219,7 @@ select("TM source");
     set("set wavelength",1);
     set("optimize for short pulse",0);
     set("center wavelength",lambda);
-    set("wavelength span",width);
+    set("wavelength span",source_width);
     set("phase",0);
     set("theta",0);
     set("phi",0);
