@@ -5,7 +5,7 @@ clear all
 % folder="SIM03_circular_cavity_spiral_outcoupler/far_field_data/";
 % folder="SIM02_no_cavity_spiral_outcoupler/sweep_charge/far_field_data/";
 % folder="SIM02_no_cavity_spiral_outcoupler/far_field_data/";
-folder="SIM05_metasurface_outcoupler/far_field_data/";%";%
+folder="SIM05_metasurface_outcoupler/scatterTests_PMMA_topped_negative/far_field_data/";%";%
 
 names = [];
 for dphi = -60%-60:120:60
@@ -13,14 +13,14 @@ for dphi = -60%-60:120:60
     %     for charge = 0%-1:1
     i = 0;
     sigma = 1;
-    charge = 1;
-    % for sc_width  = [25, 50, 75, 100, 125, 150]
-    %     for sc_length = [250, 275, 300, 325]
-            % details = '_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge) + '_scWidth'+ num2str(sc_width) + '_scLength'+ num2str(sc_length);
-            details = ['_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi',num2str(dphi),'_N24_sigma',num2str(sigma),'_charge', num2str(charge)];
+    charge = 0;
+    for sc_width  = [25, 50, 75, 100, 125, 150]
+        for sc_length = [250, 275, 300, 325]
+            details =['_TM_AlOTiO2_N10negative_filled_scShapeI_Dphi',num2str(dphi),'_N12_sigma',num2str(sigma),'_charge', num2str(charge), '_scWidth', num2str(sc_width), '_scLength', num2str(sc_length)];
+            % details = ['_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi',num2str(dphi),'_N24_sigma',num2str(sigma),'_charge', num2str(charge)];
             names = [names, string(details)];
-    %     end
-    % end
+        end
+    end
 end
 % 
 % i = 0;
@@ -91,7 +91,8 @@ for name = names
     EL = sqrt(2)/2*Ex + sqrt(2)/2*Ey*exp(+1i*pi/2);
     E_min = min( min(min(abs(ER).^2)), min(min(abs(EL).^2)));
     E_max = max( max(max(abs(ER).^2)), max(max(abs(EL).^2)));
-    S3 = 1i*(Ex.*conj(Ey)-Ey.*conj(Ex));
+    % S3 = 1i*(Ex.*conj(Ey)-Ey.*conj(Ex));  %% equivalent to -2*imag(Ex*conj(Ey))
+    S3 = -2*imag(Ex.*conj(Ey));             %% equivalent to abs(Er)^2-abs(EL)^2
     S0 = (abs(Ex).^2+abs(Ey).^2);
     chi = 0.5*asin( real(S3)./S0);
     
@@ -146,64 +147,119 @@ for name = names
     subplot(2,3,6)
 %     plot_surf(ux,uy,angle(E),'hot',"E=\surd(Ex^2+Ey^2) phase");
     
-    plot_masked(ux,uy,real(tan(chi)),E2,map_wave,"eccentricity tan\chi",'symmetric',1, 0.1);
+    % plot_masked(ux,uy,real(tan(chi)),E2,map_wave,"eccentricity tan\chi",'symmetric',1, 0.1);
+    plot_masked(ux,uy,S3,E2,map_wave,"Stokes - S3",'symmetric', max(abs(S3(:))),0.5);
+    % plot_surf(ux,uy,S3,map_wave,"S3",'symmetric');
     % xlim(xy_lim)
     % ylim(xy_lim)
     
 %     sgtitle({strcat('{\fontsize{8} ',strrep(details,'_','\_'),'}');...
 %         ['Topological charge ',num2str(top_charge)]},'fontsize',18,'fontweight','bold');
     
-    saveas(fig,strcat(folder,"far_field_PLOT",name),'png')
+    saveas(fig,strcat(folder,"far_field_PLOT",name),'jpg')
     close(fig);
 end
 % 
-function rgbImage = getRGB(data,map)
+function rgbImage = getRGB(data,map,range)
     dmin = min(data(:));
     dmax = max(data(:));
-    data = round((data - dmin)/(dmax - dmin)*( length(map)-1 ) ) +1 ;
+    if nargin > 2 
+        data =   round( (data - min(range)) / (max(range)-min(range)) *( length(map)-1 ) ) +1 ;  % normalize again inside range and scale to map
+    else
+        data = round((data - dmin)/(dmax - dmin)*( length(map)-1 ) ) +1 ;                           % normalize between 0 and 1 and scale to map
+    end
     rgbImage = ind2rgb(data,map);
 end
 
-function plot_masked(ux,uy,quantity,mask,map,picture_title,zsymmetry,massimo,threshold)
-    rgbImage = getRGB(quantity,map);
-    mask = (mask - min(mask(:))) / (max(mask(:)) - min(mask(:)));
-    binary_mask = repmat(mask < threshold,1,1,3);
+function plot_masked(ux,uy,quantity,mask,map,picture_title,zsymmetry,massimo,gamma)
+    if nargin > 6
+        if zsymmetry == "symmetric"
+            range = [-1,1] * max(abs(quantity(:)));
+            rgbImage = getRGB(quantity,map,range);            
+        elseif zsymmetry == "unitary"
+            range = [0,1] ;
+            rgbImage = getRGB(quantity,map,range); 
+        end
+        if nargin > 7
+            if zsymmetry == "symmetric"
+                range = [-1 1]*massimo;
+                rgbImage = getRGB(quantity,map,range); 
+            elseif zsymmetry == "unitary"
+                range = [0 1]*massimo;
+                rgbImage = getRGB(quantity,map,range); 
+            end
+        end
+    else
+        rgbImage = getRGB(quantity,map);
+    end
+
+
+    mask = (mask - min(mask(:))) / (max(mask(:)) - min(mask(:))); % normalize mask
+    % binary_mask = repmat(mask < threshold,1,1,3);
     
-    grayImage =  repmat(mean(rgbImage,3),1,1,3);
-    grayImage = grayImage * 0.8;
-    rgbImage(binary_mask) = grayImage(binary_mask);
+    % grayImage =  repmat(mean(rgbImage,3),1,1,3);
+    % grayImage = grayImage * 0.8;
+    % rgbImage(binary_mask) = grayImage(binary_mask);
     
+    hsvImage = rgb2hsv(rgbImage);
+    hsvImage(:,:,3) = mask;
+    rgbImage_new = hsv2rgb(hsvImage);
+
+    rgbImage = rgbImage.*(mask.^gamma);
     imshow(rgbImage(abs(ux)<0.2,abs(uy)<0.2,:));
     
     ax = gca;
     set(ax,'YDir','normal') 
     if nargin > 4
         colormap(ax,map)
-    if nargin > 5
-        title(picture_title)
-    if nargin > 6 
-        if zsymmetry == "symmetric"
-            c = max(abs([min(min(quantity)),max(max(quantity))]));
-            caxis([-c c])
-        elseif zsymmetry == "unitary"
-            caxis([0 1])
-        else
-            error('Wrong "symmetry" signment')
+        if nargin > 5
+            title(picture_title)
+            if nargin > 6
+                if zsymmetry == "symmetric"
+                    c = max(abs([min(min(quantity)),max(max(quantity))]));
+                    caxis([-c c])
+                elseif zsymmetry == "unitary"
+                    caxis([0 1])
+                else
+                    error('Wrong "symmetry" signment')
+                end
+                if nargin > 7
+                    if zsymmetry == "symmetric"
+                        caxis([-1 1]*massimo)
+                    elseif zsymmetry == "unitary"
+                        caxis([0 1]*massimo)
+                    else
+                        error('Wrong "symmetry" signment')
+                    end
+                end
+            end
         end
-    if nargin > 7
-        if zsymmetry == "symmetric"
-            caxis([-1 1]*massimo)
-        elseif zsymmetry == "unitary"
-            caxis([0 1]*massimo)
-        else
-            error('Wrong "symmetry" signment')
-        end
-    end;end;end;end
-    colorbar
+    end
+    % colorbar
     xlabel("ux");
     ylabel('uy');
     axis('square')
     
+    ax = gca;
+    %% colobar2D
+    p = ax.Position';
+    rel_size = 0.4;
+    ax_map = axes('Position',[p(1)+p(3)*(1-rel_size*3/4), p(2)+p(3), p(3)*rel_size, p(4)*rel_size ]);
+    x_map = 1:length(map);
+    y_map = linspace(0,1,256).^gamma;
+
+    [X_MAP,Y_MAP] = meshgrid(x_map,y_map);
+    hsv_map = rgb2hsv(ind2rgb(X_MAP,map));      % converti la lista di indici in rgb e quello che risulta in hsv
+    hsv_map(:,:,3) = Y_MAP;
+    imshow(hsv2rgb(hsv_map))
+    ax_map.YDir = 'normal';
+    ax_map.Position = [p(1)+p(3)*(1-rel_size*3/4), p(2)+p(3)*1.1, p(3)*rel_size, p(4)*rel_size ];
+    ax_map.XLabel.String = "S3 intensity";
+    ax_map.XLabel.Units = 'normalized';
+    ax_map.XLabel.Position = [0.5,1.2,0];
+    ax_map.YLabel.String = "Total intensity";
+    ax_map.YLabel.Units = 'normalized';
+    ax_map.YLabel.Position = [1.1,0.5,0];
 end
 
 function plot_surf(ux,uy,quantity,map,picture_title,zsymmetry,massimo)

@@ -1,7 +1,7 @@
 clear,
 % close all
 clear all
-folder="SIM05_metasurface_outcoupler/a/far_field_data/";%";%
+folder="SIM05_metasurface_outcoupler/scatterTests_PMMA_topped_negative/far_field_data/";%";%
 
 power_ratio = [];
 total_power = [];
@@ -59,7 +59,8 @@ for dphi = -60%-60:120:60
     EL = sqrt(2)/2*Ex + sqrt(2)/2*Ey*exp(+1i*pi/2);
     E_min = min( min(min(abs(ER).^2)), min(min(abs(EL).^2)));
     E_max = max( max(max(abs(ER).^2)), max(max(abs(EL).^2)));
-    S3 = 1i*(Ex.*conj(Ey)-Ey.*conj(Ex));
+    % S3 = 1i*(Ex.*conj(Ey)-Ey.*conj(Ex));  %% equivalent to -2*imag(Ex*conj(Ey))
+    S3 = -2*imag(Ex.*conj(Ey));             %% equivalent to abs(Er)^2-abs(EL)^2
     S0 = (abs(Ex).^2+abs(Ey).^2);
     chi = 0.5*asin( real(S3)./S0);
     
@@ -75,59 +76,88 @@ for dphi = -60%-60:120:60
     ER_r = zeros(1,N);
     EL_r = zeros(1,N);
     chi_r = zeros(1,N);
+    S3_r = zeros(1,N);
     counter = zeros(1,N);
     for j = 1:length(R(:))
         r = R(j);
-        idx = find((r <= r_grid(2:end)) .* (r > r_grid(1:end-1)));
+        idx = find((r <= r_grid(2:end)) .* (r > r_grid(1:end-1)));  % inserts R(j) into an regularly spaced grid
         if ~isempty(idx)
             ER_r(idx) = ER_r(idx) + abs(ER(j)).^2;
             EL_r(idx) = EL_r(idx) + abs(EL(j)).^2;
             chi_r(idx) = chi_r(idx) + abs(chi(j));
+            S3_r(idx) = S3_r(idx) + abs(S3(j));
             counter(idx) = counter(idx) + 1;
         end
         
     end
-    ER_r = ER_r ./ counter.*(2*pi*beta);
-    EL_r = EL_r ./ counter.*(2*pi*beta);
-    chi_r = chi_r ./ counter;
+    ER_r(counter>0) = ER_r(counter>0) ./ counter(counter>0);%.*(2*pi*beta); %if one would want to integrate in the azimutal direction
+    EL_r(counter>0) = EL_r(counter>0) ./ counter(counter>0);%.*(2*pi*beta); %instead of averaging only, it should moltyply by (2*pi*beta)
+    S3_r(counter>0) = S3_r(counter>0) ./ counter(counter>0);%.*(2*pi*beta); %(counter>0) is required to avoid 0/0 division  
+    chi_r(counter>0)= chi_r(counter>0)./ counter(counter>0);
     E_r = ER_r+EL_r;
 
-    
-    [~, idx_peak] = max(ER_r<0.13);
-    chi_at_max (k,l) = chi_r(idx_peak);
-    max_chi(k,l) = max(chi_r(E_r>E_max*0.1 & beta<0.13));
-    power_ratio(k,l) = sum(ER_r(beta<0.13))/sum(EL_r(beta<0.13));
-    total_power(k,l) = sum(E_r(beta<0.13));
+    % plot(beta, S3_r, beta, E_r)
+    % [~, idx_peak] = max(ER_r<0.13);
+    % chi_at_max (k,l) = chi_r(idx_peak);
+    max_chi(k,l) = max(chi_r(E_r>E_max*0.1));% & beta<0.13));
+    [~, idx_peak] = max(abs(S3_r));
+    max_S3(k,l) = S3_r(idx_peak);
+    [~, idx_peak] = max(E_r);
+    S3_at_max(k,l) = S3_r(idx_peak);
+    power_ratio(k,l) = sum(ER_r)/sum(EL_r);
+    total_power(k,l) = sum(E_r); % if ER and ER have been averaged and not 
+                                 % integrated, this power is not an actual 
+                                 % power, but still gives an estimate of
+                                 % the total power useful to us
+                                 
     disp([k,l])
 end;end;end
 %%
+y = [sc_width_v(1) sc_width_v(end)]; %- (sc_width_v(2) -sc_width_v(1))/2;
+x = [sc_length_v(1) sc_length_v(end)];%- (sc_length_v(2) -sc_length_v(1))/2;
 figure
 subplot(2,2,1)
-imagesc(sc_width_v,sc_length_v,chi_at_max);
+imagesc(x,y,S3_at_max);
 % s.EdgeColor='none';
-title('\chi at max')
+title('S3 at max')
 xlabel('scatter width - nm')
 ylabel('scatter length - nm')
 colorbar
+axs(1) = gca;
+
 subplot(2,2,2)
-imagesc(sc_width_v,sc_length_v,max_chi);
+imagesc(x,y,max_S3);
 % s.EdgeColor='none';
-title('max \chi' )
+title('max S3' )
 xlabel('scatter width - nm')
 ylabel('scatter length - nm')
 colorbar
+axs(2) = gca;
+
 subplot(2,2,3)
-imagesc(sc_width_v,sc_length_v,power_ratio);
+imagesc(x,y,power_ratio);
 title('ER/EL')
 xlabel('scatter width - nm')
 ylabel('scatter length - nm')
 colorbar
+axs(3) = gca;
+
 subplot(2,2,4)
-imagesc(sc_width_v,sc_length_v,total_power);
+imagesc(x,y,total_power);
 title('total power')
 xlabel('scatter width - nm')
 ylabel('scatter length - nm')
 colorbar
+axs(4) = gca;
+
+for ax = axs
+    ax.YAxis.TickValues = sc_width_v;
+    ax.YAxis.TickLabels = string(sc_width_v);
+    ax.YAxis.TickDirection = 'out';
+    ax.XAxis.TickValues = sc_length_v;
+    ax.XAxis.TickLabels = string(sc_length_v);
+    ax.XAxis.TickDirection = 'out';
+end
 
 function rgbImage = getRGB(data,map)
     dmin = min(data(:));
