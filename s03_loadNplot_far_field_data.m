@@ -1,23 +1,24 @@
 clear,
-% close all
+close all
 clear all
 % folder="SIM02_no_cavity_spiral_outcoupler/sweep_charge_and_ngrating/far_field_data/";
 % folder="SIM03_circular_cavity_spiral_outcoupler/far_field_data/";
 % folder="SIM02_no_cavity_spiral_outcoupler/sweep_charge/far_field_data/";
 % folder="SIM02_no_cavity_spiral_outcoupler/far_field_data/";
-folder="SIM05_metasurface_outcoupler/scatterTests_PMMA_topped_negative/far_field_data/";%";%
+folder="SIM05_metasurface_outcoupler/scatterTests_Gold_topped_negative/far_field_data/";%";%
 
 names = [];
 for dphi = -60%-60:120:60
     % for sigma = 1%-1:2:1
-    %     for charge = 0%-1:1
+        % for charge = 0%-1:1
     i = 0;
     sigma = 1;
     charge = 0;
-    for sc_width  = [25, 50, 75, 100, 125, 150]
-        for sc_length = [250, 275, 300, 325]
-            details =['_TM_AlOTiO2_N10negative_filled_scShapeI_Dphi',num2str(dphi),'_N12_sigma',num2str(sigma),'_charge', num2str(charge), '_scWidth', num2str(sc_width), '_scLength', num2str(sc_length)];
-            % details = ['_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi',num2str(dphi),'_N24_sigma',num2str(sigma),'_charge', num2str(charge)];
+    for sc_width  = [75] % [25, 50, 75, 100, 125, 150]
+        for sc_length = [250] %[250, 275, 300, 325]
+            details = ['_TM_AlOTiO2_N10negative_GoldPallik_filled_scShapeI_Dphi',num2str(dphi),'_N12_sigma',num2str(sigma),'_charge', num2str(charge), '_scWidth', num2str(sc_width), '_scLength', num2str(sc_length)];
+            % details = ['_TM_SiO2TiO2_532_N9positive_filled_scShapeI_Dphi',num2str(dphi),'_N12_sigma',num2str(sigma),'_charge', num2str(charge)];
+            % details = ['_negative_charge', num2str(charge)];
             names = [names, string(details)];
         end
     end
@@ -112,27 +113,37 @@ for name = names
                    col_vec' col_vec([1:end/2,end/2:-1:1])' zeros(256,1)];
     map_intensity=[ones(256,1) ones(256,1) col_vec(end:-1:1)';
                    ones(255,1) col_vec(end-1:-1:1)' zeros(255,1)];
+    map_wave_yellow = hsv2rgb([linspace(1/3,0,256*2)' ones(256*2,1) ones(256*2,1)]);
     %%
-    xy_lim = [-1 1]*.2;
+    xy_lim = .2;
+    ER = ER(abs(ux)<xy_lim,abs(uy)<xy_lim);
+    EL = EL(abs(ux)<xy_lim,abs(uy)<xy_lim);
+    E2 = E2(abs(ux)<xy_lim,abs(uy)<xy_lim);
+    S0 = S0(abs(ux)<xy_lim,abs(uy)<xy_lim);
+    S3 = S3(abs(ux)<xy_lim,abs(uy)<xy_lim);
+    chi= chi(abs(ux)<xy_lim,abs(uy)<xy_lim);
+    ux = ux(abs(ux)<xy_lim);
+    uy = uy(abs(uy)<xy_lim);
     fig = figure('units','normalized','outerposition',[0 0 1 1]);
     subplot(2,3,1)
-    plot_surf(ux,uy,abs(ER).^2,'hot',"Right circular polarization intensity");
+    ax = plot_surf(ux,uy,abs(ER).^2,'hot',"Right circular polarization intensity");
     caxis([E_min E_max])
-    xlim(xy_lim)
-    ylim(xy_lim)
+    % xlim(xy_lim)
+    % ylim(xy_lim)
     subplot(2,3,2)
     plot_surf(ux,uy,abs(EL).^2,'hot',"Left circular polarization intensity");
     caxis([E_min E_max])
-    xlim(xy_lim)
-    ylim(xy_lim)
+    % xlim(xy_lim)
+    % ylim(xy_lim)
     subplot(2,3,4)
     plot_surf(ux,uy,angle(ER),'hot',"Right circular polarization phase");
-    xlim(xy_lim)
-    ylim(xy_lim)
+    % plot_masked(ux,uy,angle(ER),E2,hot,"S3/S0 & Total Intensity",'symmetric', pi , 1)
+    % xlim(xy_lim)
+    % ylim(xy_lim)
     subplot(2,3,5)
     plot_surf(ux,uy,angle(EL),'hot',"Left circular polarization phase");
-    xlim(xy_lim)
-    ylim(xy_lim)
+    % xlim(xy_lim)
+    % ylim(xy_lim)
     subplot(2,3,3)
     plot_surf(x,y,real(transpose(index)),'cool','Refractive index map');
     xlim([-4,4]*1e-6)
@@ -148,7 +159,9 @@ for name = names
 %     plot_surf(ux,uy,angle(E),'hot',"E=\surd(Ex^2+Ey^2) phase");
     
     % plot_masked(ux,uy,real(tan(chi)),E2,map_wave,"eccentricity tan\chi",'symmetric',1, 0.1);
-    plot_masked(ux,uy,S3,E2,map_wave,"Stokes - S3",'symmetric', max(abs(S3(:))),0.5);
+    ax2 = plot_masked(ux,uy,S3./S0,E2,map_wave_yellow,"far field",'symmetric', 1 , 1);
+    set(ax2,'XTickLabel', ax.XTickLabel, 'XTick', linspace(1, length(E2(1,:)),length(ax.XTickLabel)),...
+            'YTickLabel', ax.YTickLabel, 'YTick', linspace(1, length(E2(:,1)),length(ax.YTickLabel)));
     % plot_surf(ux,uy,S3,map_wave,"S3",'symmetric');
     % xlim(xy_lim)
     % ylim(xy_lim)
@@ -157,7 +170,7 @@ for name = names
 %         ['Topological charge ',num2str(top_charge)]},'fontsize',18,'fontweight','bold');
     
     saveas(fig,strcat(folder,"far_field_PLOT",name),'jpg')
-    close(fig);
+    % close(fig);
 end
 % 
 function rgbImage = getRGB(data,map,range)
@@ -171,7 +184,7 @@ function rgbImage = getRGB(data,map,range)
     rgbImage = ind2rgb(data,map);
 end
 
-function plot_masked(ux,uy,quantity,mask,map,picture_title,zsymmetry,massimo,gamma)
+function ax = plot_masked(ux,uy,quantity,mask,map,picture_title,zsymmetry,massimo,gamma)
     if nargin > 6
         if zsymmetry == "symmetric"
             range = [-1,1] * max(abs(quantity(:)));
@@ -193,8 +206,9 @@ function plot_masked(ux,uy,quantity,mask,map,picture_title,zsymmetry,massimo,gam
         rgbImage = getRGB(quantity,map);
     end
 
-
-    mask = (mask - min(mask(:))) / (max(mask(:)) - min(mask(:))); % normalize mask
+    minimo = min(mask(:));
+    massimo= max(mask(:));
+    mask = (mask - minimo) / (massimo - minimo); % normalize mask
     % binary_mask = repmat(mask < threshold,1,1,3);
     
     % grayImage =  repmat(mean(rgbImage,3),1,1,3);
@@ -202,14 +216,17 @@ function plot_masked(ux,uy,quantity,mask,map,picture_title,zsymmetry,massimo,gam
     % rgbImage(binary_mask) = grayImage(binary_mask);
     
     hsvImage = rgb2hsv(rgbImage);
-    hsvImage(:,:,3) = mask;
+    hsvImage(:,:,3) = mask.^gamma;             % apply mask to hsv VALUE or saturation
     rgbImage_new = hsv2rgb(hsvImage);
 
     rgbImage = rgbImage.*(mask.^gamma);
-    imshow(rgbImage(abs(ux)<0.2,abs(uy)<0.2,:));
+    % image_to_show = rgbImage(abs(ux)<0.2,abs(uy)<0.2,:);
+    imshow(rgbImage_new);
     
     ax = gca;
-    set(ax,'YDir','normal') 
+    % set(ax, 'XTickLabel', string(linspace(-0.2,0.2,7)), 'XTick', linspace(1, length(image_to_show(1,:)),7),...
+    %         'YTickLabel', string(linspace(-0.2,0.2,7)), 'YTick', linspace(1, length(image_to_show(:,1)),7));
+    set(ax,'YDir','normal','tickdir','both', 'visible','on') 
     if nargin > 4
         colormap(ax,map)
         if nargin > 5
@@ -240,11 +257,10 @@ function plot_masked(ux,uy,quantity,mask,map,picture_title,zsymmetry,massimo,gam
     ylabel('uy');
     axis('square')
     
-    ax = gca;
     %% colobar2D
     p = ax.Position';
     rel_size = 0.4;
-    ax_map = axes('Position',[p(1)+p(3)*(1-rel_size*3/4), p(2)+p(3), p(3)*rel_size, p(4)*rel_size ]);
+    ax_map = axes('Position',[p(1)+p(3)*(1-rel_size*3/4), p(2)+(p(3)+p(4))/2, p(3)*rel_size, p(4)*rel_size ]);
     x_map = 1:length(map);
     y_map = linspace(0,1,256).^gamma;
 
@@ -252,22 +268,30 @@ function plot_masked(ux,uy,quantity,mask,map,picture_title,zsymmetry,massimo,gam
     hsv_map = rgb2hsv(ind2rgb(X_MAP,map));      % converti la lista di indici in rgb e quello che risulta in hsv
     hsv_map(:,:,3) = Y_MAP;
     imshow(hsv2rgb(hsv_map))
-    ax_map.YDir = 'normal';
     ax_map.Position = [p(1)+p(3)*(1-rel_size*3/4), p(2)+p(3)*1.1, p(3)*rel_size, p(4)*rel_size ];
-    ax_map.XLabel.String = "S3 intensity";
-    ax_map.XLabel.Units = 'normalized';
-    ax_map.XLabel.Position = [0.5,1.2,0];
-    ax_map.YLabel.String = "Total intensity";
-    ax_map.YLabel.Units = 'normalized';
-    ax_map.YLabel.Position = [1.1,0.5,0];
+    ax_map.XLabel.String = "S3/S0";
+    ax_map.XAxisLocation = 'top';
+    ax_map.XTick = linspace(1, length(x_map),3);
+    ax_map.XTickLabel = [{"LHC"}, {"Linear"}, {"RHC"}];
+
+    ax_map.YDir = 'normal';
+    ax_map.YLabel.String = "S0";
+    ax_map.YLabel.Rotation = 0;
+    ax_map.YAxisLocation = 'right';
+    ax_map.YTick = linspace(1, length(y_map),5);
+    ax_map.YTickLabel = compose("%1.2e",linspace(minimo, massimo,5));
+
+
+    set(ax_map,'visible','on','tickdir','both',...
+               'position',[p(1)+p(3)*(1-rel_size*3/4), p(2)+p(4)-(p(4))/4, ax_map.Position(3), ax_map.Position(4) ]) 
 end
 
-function plot_surf(ux,uy,quantity,map,picture_title,zsymmetry,massimo)
+function ax = plot_surf(ux,uy,quantity,map,picture_title,zsymmetry,massimo)
 %     s=surface(ux,uy,quantity);
 %     s.EdgeColor='none';
     imagesc(ux,uy,quantity);
     ax = gca;
-    set(ax,'YDir','normal') 
+    set(ax,'YDir','normal','tickdir','both') 
     colorbar
     xlabel("ux");
     ylabel('uy');

@@ -5,7 +5,7 @@ charge = 0;
 sim_name = 'metasurface_outcoupler';
 #sim_name = 'complex_outcouplers';
 
-folder = 'SIM05_'+ sim_name + '/' + 'scatterTests_PMMA_topped_negative';#_and_ngrating';
+folder = 'SIM05_'+ sim_name;# + '/' + 'scatterTests_PMMA_topped_negative';#_and_ngrating';
 #details = '_negative_charge'+num2str(charge)+'_finerMeshed';#+'_N'+num2str(n_g)+'_tilt45'
 details = '_TM_radial'+'_charge'+num2str(charge)+'_negative';#
 
@@ -27,14 +27,14 @@ for (dphi = -60){#-60:120:60){
 i = 0;
 sigma = 1;
 charge = 0;
-for (sc_width  = [25, 50, 75, 100, 125, 150] ){
-for (sc_length = [250, 275, 300, 325]) {
-details = '_TM_AlOTiO2_N10negative_filled_scShapeI_Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge) + '_scWidth'+ num2str(sc_width) + '_scLength'+ num2str(sc_length);
-#details = '_TM_AlOTiO2_N10positive_filled_scShapeI_Dphi'+num2str(dphi)+'_N24_sigma'+num2str(sigma)+'_charge'+ num2str(charge);
-print(folder + '/' + 'scatterTests' + details);
-load( folder + '/' + 'scatterTests' + details);
-#print(folder+ '/'+ sim_name + details);
-#load(folder+ '/'+ sim_name + details);
+#for (sc_width  = [25, 50, 75, 100, 125, 150] ){
+#for (sc_length = [250, 275, 300, 325]) {
+#details = '_TM_AlOTiO2_N10negative_filled_scShapeI_Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge) + '_scWidth'+ num2str(sc_width) + '_scLength'+ num2str(sc_length);
+details = '_TM_SiO2TiO2_532_N9positive_filled_scShapeI_Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge);
+#print(folder + '/' + 'scatterTests' + details);
+#load( folder + '/' + 'scatterTests' + details);
+print(folder+ '/'+ sim_name + details);
+load(folder+ '/'+ sim_name + details);
 i = i +1;
 print(num2str(i));
 cd(main_dir);
@@ -70,5 +70,5 @@ matlabsave(folder+'/far_field_data/'+'far_field_data' + details,ux,uy,Ex,Ey,Ez,x
 #E_phi=Ez;
 #matlabsave(folder+'/far_field_data/'+'far_field_data'+ details+'PHI',ux,uy,E_theta,E_phi);
 system("powershell -c [console]::beep(500,500)");
-}}
+#}}
 }
