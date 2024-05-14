@@ -1,24 +1,26 @@
 clear,
-close all
+% close all
 clear all
 % folder="SIM02_no_cavity_spiral_outcoupler/sweep_charge_and_ngrating/far_field_data/";
 % folder="SIM03_circular_cavity_spiral_outcoupler/far_field_data/";
 % folder="SIM02_no_cavity_spiral_outcoupler/sweep_charge/far_field_data/";
 % folder="SIM02_no_cavity_spiral_outcoupler/far_field_data/";
-folder="SIM05_metasurface_outcoupler/scatterTests_Gold_topped_negative/far_field_data/";%";%
+% folder="SIM04_complex_outcouplers/far_field_data/";
+folder="SIM05_metasurface_outcoupler/a/far_field_data/";%scatterTests_Gold_topped_negative/far_field_data/";%";%
 
 names = [];
-for dphi = -60%-60:120:60
+for dphi = 60%-60:120:60
     % for sigma = 1%-1:2:1
         % for charge = 0%-1:1
     i = 0;
-    sigma = 1;
-    charge = 0;
+    sigma = -1;
+    charge = -2;
     for sc_width  = [75] % [25, 50, 75, 100, 125, 150]
         for sc_length = [250] %[250, 275, 300, 325]
-            details = ['_TM_AlOTiO2_N10negative_GoldPallik_filled_scShapeI_Dphi',num2str(dphi),'_N12_sigma',num2str(sigma),'_charge', num2str(charge), '_scWidth', num2str(sc_width), '_scLength', num2str(sc_length)];
+            details = ['_TM_SiO2TiO2_532_N9negative_GoldPallik_filled_scShapeI_Dphi',num2str(dphi),'_N12_sigma',num2str(sigma),'_charge', num2str(charge), '_scWidth', num2str(sc_width), '_scLength', num2str(sc_length)];
             % details = ['_TM_SiO2TiO2_532_N9positive_filled_scShapeI_Dphi',num2str(dphi),'_N12_sigma',num2str(sigma),'_charge', num2str(charge)];
             % details = ['_negative_charge', num2str(charge)];
+            % details = ['_design_gd3_onSiO2_positive_filled_Ishape_Dphi-60_N12_sigma1_charge2'];
             names = [names, string(details)];
         end
     end
@@ -169,7 +171,7 @@ for name = names
 %     sgtitle({strcat('{\fontsize{8} ',strrep(details,'_','\_'),'}');...
 %         ['Topological charge ',num2str(top_charge)]},'fontsize',18,'fontweight','bold');
     
-    saveas(fig,strcat(folder,"far_field_PLOT",name),'jpg')
+    % saveas(fig,strcat(folder,"far_field_PLOT",name),'png')
     % close(fig);
 end
 % 
@@ -207,6 +209,8 @@ function ax = plot_masked(ux,uy,quantity,mask,map,picture_title,zsymmetry,massim
     end
 
     minimo = min(mask(:));
+
+    minimo = 0; % force minimo to 0 so higlight the presence of a baseline
     massimo= max(mask(:));
     mask = (mask - minimo) / (massimo - minimo); % normalize mask
     % binary_mask = repmat(mask < threshold,1,1,3);
@@ -216,11 +220,15 @@ function ax = plot_masked(ux,uy,quantity,mask,map,picture_title,zsymmetry,massim
     % rgbImage(binary_mask) = grayImage(binary_mask);
     
     hsvImage = rgb2hsv(rgbImage);
-    hsvImage(:,:,3) = mask.^gamma;             % apply mask to hsv VALUE or saturation
+    satImage = hsvImage(:,:,2);
+    satImage(mask>2/3)= ((1+2/3*3/2)-3/2*mask(mask>2/3)).^gamma;
+    valImage = hsvImage(:,:,3);
+    valImage(mask<2/3)= (3/2*mask(mask<2/3)).^gamma;
+    hsvImage(:,:,2) = satImage;
+    hsvImage(:,:,3) = valImage;
+    % hsvImage(:,:,3) = mask.^gamma;
     rgbImage_new = hsv2rgb(hsvImage);
 
-    rgbImage = rgbImage.*(mask.^gamma);
-    % image_to_show = rgbImage(abs(ux)<0.2,abs(uy)<0.2,:);
     imshow(rgbImage_new);
     
     ax = gca;
@@ -262,11 +270,17 @@ function ax = plot_masked(ux,uy,quantity,mask,map,picture_title,zsymmetry,massim
     rel_size = 0.4;
     ax_map = axes('Position',[p(1)+p(3)*(1-rel_size*3/4), p(2)+(p(3)+p(4))/2, p(3)*rel_size, p(4)*rel_size ]);
     x_map = 1:length(map);
-    y_map = linspace(0,1,256).^gamma;
+    y_map = linspace(0,1,256/2*3);
 
     [X_MAP,Y_MAP] = meshgrid(x_map,y_map);
     hsv_map = rgb2hsv(ind2rgb(X_MAP,map));      % converti la lista di indici in rgb e quello che risulta in hsv
-    hsv_map(:,:,3) = Y_MAP;
+    sat_map = hsv_map(:,:,2);
+    sat_map(Y_MAP>2/3) = ((1+2/3*3/2)-3/2*Y_MAP(Y_MAP>2/3)).^gamma;
+    val_map = hsv_map(:,:,3);
+    val_map(Y_MAP<2/3)= (3/2*Y_MAP(Y_MAP<2/3)).^gamma;
+    hsv_map(:,:,2) = sat_map;
+    hsv_map(:,:,3) = val_map;
+    % hsv_map(:,:,3) = Y_MAP;
     imshow(hsv2rgb(hsv_map))
     ax_map.Position = [p(1)+p(3)*(1-rel_size*3/4), p(2)+p(3)*1.1, p(3)*rel_size, p(4)*rel_size ];
     ax_map.XLabel.String = "S3/S0";
