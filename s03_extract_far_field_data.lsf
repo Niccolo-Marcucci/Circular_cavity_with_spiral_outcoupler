@@ -2,11 +2,11 @@ clear;
 main_dir = pwd; 
 charge = 0;
 
-sim_name = 'metasurface_outcoupler';
+sim_name = 'metasurface_outcoupler'; #'no_cavity_spiral_outcoupler';
 #sim_name = 'complex_outcouplers';
 
-folder = 'SIM05_'+ sim_name;# + '/' + 'scatterTests_PMMA_topped_negative';#_and_ngrating';
-#details = '_negative_charge'+num2str(charge)+'_finerMeshed';#+'_N'+num2str(n_g)+'_tilt45'
+folder = 'SIM05_'+ sim_name + '/' + 'a';#+ '/' + 'sweep_charge';# _and_ngrating';chargeTests_Gold_topped_negative
+#details = '_negative_charge'+num2str(charge)+''_finerMeshed';#+'_N'+num2str(n_g)+'_tilt45'
 details = '_TM_radial'+'_charge'+num2str(charge)+'_negative';#
 
 
@@ -21,20 +21,27 @@ details = '_TM_radial'+'_charge'+num2str(charge)+'_negative';#
     #start_radius = start_radius_v(i);
     #filename = folder +'/'+ 'sweep_scatter_size/scatterTests_design_gd3_onSiO2_positive_filled_Dphi60_N12_sigma-1_m1_radialFF' + num2str(radial_FF) + '_lateralFF' +num2str(lateral_FF)+ '.fsp'; #sim_name + details + '.fsp' ;
     #filename = folder +'/'+ 'sweep_start_radius/scatterTests_design_gd3_onSiO2_positive_filled_Dphi60_N12_sigma-1_m1_diameter' + num2str(round(2*start_radius*1e9));
-for (dphi = -60){#-60:120:60){
+#for (dphi = -60){#-60:120:60){
 #for (sigma = 1){#-1:2:1){
-#for (charge = 0){#-1:1){
 i = 0;
 sigma = 1;
-charge = 0;
+charge = 2;
+sc_width = 75;
+sc_length = 250;
+dphi = -60;
+#for (charge = -3:3){
 #for (sc_width  = [25, 50, 75, 100, 125, 150] ){
 #for (sc_length = [250, 275, 300, 325]) {
 #details = '_TM_AlOTiO2_N10negative_filled_scShapeI_Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge) + '_scWidth'+ num2str(sc_width) + '_scLength'+ num2str(sc_length);
-details = '_TM_SiO2TiO2_532_N9positive_filled_scShapeI_Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge);
+details = '_TM_SiO2TiO2_532_N9negative_GoldPallik_radial_scShapeI_Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge) + '_scWidth'+ num2str(sc_width) + '_scLength'+ num2str(sc_length);
+#details = '_TM_SiO2TiO2_532_N9positive_filled_scShapeI_Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge);
+#details = '_negative_charge'+ num2str(charge);
 #print(folder + '/' + 'scatterTests' + details);
 #load( folder + '/' + 'scatterTests' + details);
-print(folder+ '/'+ sim_name + details);
-load(folder+ '/'+ sim_name + details);
+print(folder + '/' + 'chargeTests' + details);
+load( folder + '/' + 'chargeTests' + details);
+#print(folder+ '/'+ sim_name + details);
+#load(folder+ '/'+ sim_name + details);
 i = i +1;
 print(num2str(i));
 cd(main_dir);
@@ -71,4 +78,4 @@ matlabsave(folder+'/far_field_data/'+'far_field_data' + details,ux,uy,Ex,Ey,Ez,x
 #matlabsave(folder+'/far_field_data/'+'far_field_data'+ details+'PHI',ux,uy,E_theta,E_phi);
 system("powershell -c [console]::beep(500,500)");
 #}}
-}
+#}
