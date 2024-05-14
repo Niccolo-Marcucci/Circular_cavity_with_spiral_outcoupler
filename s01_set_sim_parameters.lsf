@@ -12,7 +12,7 @@ cd(main_dir);
 
 design_name = '_TM_SiO2TiO2_532_N9';
 outcoupler_type = 'filled';
-pattern_type = 'positive';
+pattern_type = 'negative';
 
 # source
 lambda=532e-9;
@@ -180,7 +180,8 @@ select("pol splitter");
     set('scatter width',scatter_width);
     set('scatter shape',"I");
     set("start radius",cavity_diameter/2+N_dbr*period_dbr+spacing_cavity_outcoupler);
-    set("period",period_outcoupler);
+    set("period",period_outcoupler);   
+    set("wave period",lambda/n_eff);
     set("z min", -tail);
     set("pattern type",outcoupler_type);
     set('fill factor',FF);
