@@ -25,15 +25,15 @@ details = '_TM_radial'+'_charge'+num2str(charge)+'_negative';#
 #for (sigma = 1){#-1:2:1){
 i = 0;
 sigma = 1;
-charge = 2;
+charge = 1;
 sc_width = 75;
 sc_length = 250;
 dphi = -60;
 #for (charge = -3:3){
-#for (sc_width  = [25, 50, 75, 100, 125, 150] ){
-#for (sc_length = [250, 275, 300, 325]) {
+for (sc_width  = [25, 50, 75, 100, 125, 150] ){
+for (sc_length = [200, 225, 250, 275, 300, 325]) {
 #details = '_TM_AlOTiO2_N10negative_filled_scShapeI_Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge) + '_scWidth'+ num2str(sc_width) + '_scLength'+ num2str(sc_length);
-details = '_TM_SiO2TiO2_532_N9negative_GoldPallik_radial_scShapeI_Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge) + '_scWidth'+ num2str(sc_width) + '_scLength'+ num2str(sc_length);
+details = '_TM_SiO2TiO2_532_N9negative_GoldPallik_filled_scShapeI_Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge) + '_scWidth'+ num2str(sc_width) + '_scLength'+ num2str(sc_length);
 #details = '_TM_SiO2TiO2_532_N9positive_filled_scShapeI_Dphi'+num2str(dphi)+'_N12_sigma'+num2str(sigma)+'_charge'+ num2str(charge);
 #details = '_negative_charge'+ num2str(charge);
 #print(folder + '/' + 'scatterTests' + details);
@@ -76,6 +76,6 @@ matlabsave(folder+'/far_field_data/'+'far_field_data' + details,ux,uy,Ex,Ey,Ez,x
 #E_theta=Ey;
 #E_phi=Ez;
 #matlabsave(folder+'/far_field_data/'+'far_field_data'+ details+'PHI',ux,uy,E_theta,E_phi);
-system("powershell -c [console]::beep(500,500)");
-#}}
+#system("powershell -c [console]::beep(500,500)");
+}}
 #}

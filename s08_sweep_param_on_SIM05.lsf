@@ -25,12 +25,12 @@ sc_width  = 75;
 sc_length = 250;
 sigmas = [-1,1];
 angles = [60,-60];
-
-for (j = 1:2) {
+j=2;
+#for (j = 1:2) {
     sigma = sigmas(j);
     charge = sigma;
-#for (sc_width  = [25, 50, 75, 100, 125, 150] ){
-#for (sc_length = [200, 225, 250, 275, 300, 325]) {
+for (sc_width  = [25, 50, 75, 100, 125, 150] ){
+for (sc_length = [200, 225, 250, 275, 300, 325]) {
     i = i +1;
     if (i < 1) {
     print(num2str(i) + 'skipped');
@@ -49,6 +49,6 @@ for (j = 1:2) {
     cd(main_dir);
     system("powershell -c [console]::beep(500,500)");
     }
-}#}
+}}
 
 #system("powershell -c [console]::beep(800,10000)"); # valid for windows only ([Hz],[ms])
