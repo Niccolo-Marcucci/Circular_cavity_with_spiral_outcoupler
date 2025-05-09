@@ -5,17 +5,17 @@ main_dir = pwd;
 
 sim_name = 'metasurface_outcoupler';
 folder = 'SIM05_'+ sim_name;
-details = '_base';
+details = '_base_TE';
 filename = folder +'/'+ sim_name + details;
 load(filename);
 cd(main_dir);
 
-design_name = '_TM_SiO2TiO2_532_N9';
+design_name = '_TE_N7_520';
 outcoupler_type = 'filled';
 pattern_type = 'negative';
 
 # source
-lambda=532e-9;
+lambda=520e-9;
 source_width=30e-9;
 
 # multilayer
@@ -69,7 +69,7 @@ scatter_width = s * 0.3;
 FF = .9;
 #DD_phi = 0;
 
-newdetails = design_name+ ''  + pattern_type + '_' + outcoupler_type +  '_scShapeI'+ '_Dphi' + num2str(round(D_phi/pi*180)) + '_N' + num2str(N_outcoupler) + '_sigma' + num2str(sigma)+ '_charge'+ num2str(N_charge) ;# + '_DDphi' + num2str(DD_phi); # + '_scwidth' + num2str(round(scatter_width*1e9));#
+newdetails = design_name+ '_GoldPallik_'  + pattern_type + '_' + outcoupler_type +  '_scShapeI'+ '_Dphi' + num2str(round(D_phi/pi*180)) + '_N' + num2str(N_outcoupler) + '_sigma' + num2str(sigma)+ '_charge'+ num2str(N_charge) ;# + '_DDphi' + num2str(DD_phi); # + '_scwidth' + num2str(round(scatter_width*1e9));#
 
 # domain
 L_domain = cavity_diameter+2*(N_dbr*period_dbr+spacing_cavity_outcoupler+
@@ -171,7 +171,8 @@ select("metasurface outcoupler");
     
  
 select("pol splitter");
-    set("index groove",groove_idx);
+    #set("index groove",groove_idx);
+    set("material groove","Au (Gold) - Palik");
     set("N rings",N_outcoupler);
     set("topological charge",N_charge);
     set("topology","spiral");
@@ -212,7 +213,7 @@ select("beam block");
     
 # sources and monitors
 
-select("TM source");
+select("TE source 1");
     set("x",0);
     set("y",0);
     set("z",source_zloc);
@@ -222,8 +223,22 @@ select("TM source");
     set("center wavelength",lambda);
     set("wavelength span",source_width);
     set("phase",0);
-    set("theta",0);
+    set("theta",90);
     set("phi",0);
+    set("dipole type","Electric Dipole");
+    
+select("TE source 2");
+    set("x",0);
+    set("y",0);
+    set("z",source_zloc);
+    set("override global source settings",1);
+    set("set wavelength",1);
+    set("optimize for short pulse",0);
+    set("center wavelength",lambda);
+    set("wavelength span",source_width);
+    set("phase",90);
+    set("theta",90);
+    set("phi",90);
     set("dipole type","Electric Dipole");
 
 select("top field power");

@@ -9,20 +9,19 @@ clear all
 folder="SIM05_metasurface_outcoupler/a/far_field_data/";%scatterTests_Gold_topped_negative/far_field_data/";%";%
 
 names = [];
-for dphi = 60%-60:120:60
-    % for sigma = 1%-1:2:1
-        % for charge = 0%-1:1
-    i = 0;
-    sigma = -1;
-    charge = -2;
-    for sc_width  = [75] % [25, 50, 75, 100, 125, 150]
-        for sc_length = [250] %[250, 275, 300, 325]
-            details = ['_TM_SiO2TiO2_532_N9negative_GoldPallik_filled_scShapeI_Dphi',num2str(dphi),'_N12_sigma',num2str(sigma),'_charge', num2str(charge), '_scWidth', num2str(sc_width), '_scLength', num2str(sc_length)];
-            % details = ['_TM_SiO2TiO2_532_N9positive_filled_scShapeI_Dphi',num2str(dphi),'_N12_sigma',num2str(sigma),'_charge', num2str(charge)];
-            % details = ['_negative_charge', num2str(charge)];
-            % details = ['_design_gd3_onSiO2_positive_filled_Ishape_Dphi-60_N12_sigma1_charge2'];
-            names = [names, string(details)];
-        end
+filename = '_TE_N7_520_GoldPallik_negative_filled_scShapeI';
+
+sc_width  = 70;
+sc_length = 237;
+sigma = 1;
+sc_angle = -60;
+i = 0;
+for spin = -1:2:1
+    for charge = -3:2
+#for sc_width  = [25, 50, 75, 100, 125, 150] 
+    #for sc_length = [200, 225, 250, 275, 300, 325]
+         details = [ filename + '_Dphi' + num2str(sc_angle)+'_N12_sigma' + num2str(sigma) + '_spin'+ num2str(spin) +  '_charge' + num2str(charge) +'_scWidth' + num2str(sc_width) + '_scLength' + num2str(sc_length) ];
+         names = [names, string(details)];
     end
 end
 % 

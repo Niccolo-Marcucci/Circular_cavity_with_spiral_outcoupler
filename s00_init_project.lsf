@@ -14,7 +14,7 @@ sim_name = 'metasurface_outcoupler';
 
 #sim_name = 'complex_outcouplers';
 folder = 'SIM05_'+ sim_name;
-details = '_base';
+details = '_base_TE';
 filename = folder +'/'+ sim_name + details + '.fsp';
 
 lib_dir = "Lumerical-Objects/";                                    
@@ -55,7 +55,9 @@ addcircle;
 set('name','beam block');
 
 adddipole;
-set('name','TM source');
+set('name','TE source 1');
+adddipole;
+set('name','TE source 2');
 
 # monitors
 
